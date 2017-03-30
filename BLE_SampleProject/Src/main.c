@@ -47,6 +47,11 @@
 #include "stm32_bluenrg_ble.h"
 #include "bluenrg_utils.h"
 
+#include "stm32f4xx.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_cortex.h"
+#include "stm32f4xx_hal_uart.h"
+
 #include <string.h>
 #include <stdio.h>
 
@@ -94,6 +99,23 @@ void User_Process(AxesRaw_t* p_axes);
 /**
  * @}
  */
+
+//Possible UART Config
+UART_HandleTypeDef huart2;
+		
+void UART_Config(void)
+{
+	huart2.Instance = USART2;
+	huart2.Init.BaudRate = 115200;
+	huart2.Init.WordLength = UART_WORDLENGTH_8B;
+	huart2.Init.StopBits = UART_STOPBITS_1;
+	huart2.Init.Parity = UART_PARITY_NONE;
+	huart2.Init.Mode = UART_MODE_TX_RX;
+	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	HAL_UART_Init(&huart2);
+}
+ 
+ 
 
 /**
  * @brief  Main function to show how to use the BlueNRG Bluetooth Low Energy
