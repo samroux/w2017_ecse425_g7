@@ -51,6 +51,8 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_cortex.h"
 #include "stm32f4xx_hal_uart.h"
+#include "stm32f4xx_hal_usart.h"
+#include "stm32f4xx_hal_conf.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -96,24 +98,12 @@ uint8_t bnrg_expansion_board = IDB04A1; /* at startup, suppose the X-NUCLEO-IDB0
  */
 /* Private function prototypes -----------------------------------------------*/
 void User_Process(AxesRaw_t* p_axes);
+//HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart);
 /**
  * @}
  */
 
-//Possible UART Config
-UART_HandleTypeDef huart2;
-		
-void UART_Config(void)
-{
-	huart2.Instance = USART2;
-	huart2.Init.BaudRate = 115200;
-	huart2.Init.WordLength = UART_WORDLENGTH_8B;
-	huart2.Init.StopBits = UART_STOPBITS_1;
-	huart2.Init.Parity = UART_PARITY_NONE;
-	huart2.Init.Mode = UART_MODE_TX_RX;
-	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-	HAL_UART_Init(&huart2);
-}
+
  
  
 
@@ -174,6 +164,18 @@ int main(void)
   /* Configure the system clock */
 	/* SYSTEM CLOCK = 32 MHz */
   SystemClock_Config();
+  
+  //Possible UART Config
+  UART_HandleTypeDef huart2;
+
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  HAL_UART_Init(&huart2);
 
   /* Initialize the BlueNRG SPI driver */
   BNRG_SPI_Init();
