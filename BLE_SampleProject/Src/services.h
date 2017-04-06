@@ -104,8 +104,10 @@ typedef struct {
  */
 tBleStatus Add_Acc_Service(void);
 tBleStatus Add_Sample_Service(void);
+tBleStatus Add_W_Sample_Service(void);
 tBleStatus Acc_Update(AxesRaw_t *data);
 tBleStatus Sample_Characteristic_Update(uint8_t value);
+tBleStatus WSample_Characteristic_Read(void);
 void       setConnectable(void);
 void       enableNotification(void);
 void       GAP_ConnectionComplete_CB(uint8_t addr[6], uint16_t handle);

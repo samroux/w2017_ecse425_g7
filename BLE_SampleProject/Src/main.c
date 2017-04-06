@@ -143,11 +143,6 @@ int main(void)
    */
   HAL_Init();
   
-#if NEW_SERVICES
-  /* Configure LED2 */
-  BSP_LED_Init(LED2); 
-#endif
-  
   /* Configure the User Button in GPIO Mode */
   BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
   
@@ -251,6 +246,14 @@ int main(void)
     PRINTF("Sample service added successfully.\n");
   else
     PRINTF("Error while adding Sample service.\n");
+	
+	ret = Add_W_Sample_Service();
+	
+	if(ret == BLE_STATUS_SUCCESS)
+    PRINTF("Write Sample service added successfully.\n");
+  else
+    PRINTF("Error while adding Write Sample service.(0x%02x)\n", ret);
+	
 
   /* Set output power level */
   ret = aci_hal_set_tx_power_level(1,4);
@@ -277,15 +280,15 @@ void User_Process(AxesRaw_t* p_axes)
   } 
 
 	if (connected){
-		counter += 1;
-		counter %= 256;
-		Sample_Characteristic_Update (10);
-		printf("COUNTER: %d\n", counter );
+		Sample_Characteristic_Update (1);
+		WSample_Characteristic_Read ();
+		
+		//printf("COUNTER: %d\n", counter );
 		 /* Update acceleration data */
 		p_axes->AXIS_X += 1;
 		p_axes->AXIS_Y -= 1;
 		p_axes->AXIS_Z += 2;
-		PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
+		//PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
 		Acc_Update(p_axes);
 	}
 
