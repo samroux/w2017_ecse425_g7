@@ -1,13 +1,17 @@
-#include "sample_service.h"
+#include "services.h"
 
 uint8_t sample_char_value;
 volatile int connected = FALSE;
 volatile uint8_t set_connectable = 1;
 volatile uint16_t connection_handle = 0;
 volatile uint8_t notification_enabled = FALSE;
+volatile AxesRaw_t axes_data = {0, 0, 0};
 
 uint16_t sampleServHandle, TXCharHandle, RXCharHandle;
 uint16_t sampleServHandle, sampleCharHandle;
+uint16_t accServHandle, accCharHandle;
+uint16_t buttonServHandle, buttonCharHandle;
+uint16_t pdataServHandle, pdataCharHandle;
 
 #define COPY_UUID_128(uuid_struct, uuid_15, uuid_14, uuid_13, uuid_12, uuid_11, uuid_10, uuid_9, uuid_8, uuid_7, uuid_6, uuid_5, uuid_4, uuid_3, uuid_2, uuid_1, uuid_0) \
 do {\
@@ -18,8 +22,19 @@ do {\
 }while(0)
 
 
+//UUID Definitions
 #define COPY_SAMPLE_SERVICE_UUID(uuid_struct)			COPY_UUID_128(uuid_struct,0x02,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_SAMPLE_CHAR_UUID(uuid_struct)				COPY_UUID_128(uuid_struct,0xe2,0x3e,0x78,0xa0, 0xcf,0x4a, 0x11,0xe1, 0x8f,0xfc, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+
+#define COPY_ACC_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x04,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+#define COPY_ACC_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0x05,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+
+//#define COPY_BUTTON_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x04,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+//#define COPY_BUTTON_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0x05,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+
+//#define COPY_PDATA_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x04,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+//#define COPY_PDATA_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0x05,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+
 
 /* Store Value into a buffer in Little Endian Format */
 #define STORE_LE_16(buf, val)    ( ((buf)[0] =  (uint8_t) (val)    ) , \
@@ -32,10 +47,12 @@ tBleStatus Add_Sample_Service(void)
   uint8_t uuid[16];
   
   COPY_SAMPLE_SERVICE_UUID(uuid);
+	//Adding Service 
   ret = aci_gatt_add_serv(UUID_TYPE_128, uuid, PRIMARY_SERVICE, 7, &sampleServHandle);
   if (ret != BLE_STATUS_SUCCESS) goto fail;    
   
-  COPY_SAMPLE_CHAR_UUID(uuid);  
+  COPY_SAMPLE_CHAR_UUID(uuid);
+	//Adding Characteristics 
   ret =  aci_gatt_add_char(sampleServHandle, UUID_TYPE_128, uuid, 1,
                            CHAR_PROP_NOTIFY|CHAR_PROP_READ,
                            ATTR_PERMISSION_NONE,
@@ -67,7 +84,67 @@ tBleStatus Sample_Characteristic_Update(uint8_t value)
   ret = aci_gatt_update_char_value(sampleServHandle, sampleCharHandle, 0, 1, buf);
 	
   if (ret != BLE_STATUS_SUCCESS){
-    PRINTF("Error while updating sample characteristic.\n") ;
+    PRINTF("Error while updating sample characteristic.(0x%02x)\n", ret) ;
+    return BLE_STATUS_ERROR ;
+  }
+  return BLE_STATUS_SUCCESS;	
+}
+
+/**
+ * @brief  Add an accelerometer service using a vendor specific profile.
+ *
+ * @param  None
+ * @retval tBleStatus Status
+ */
+tBleStatus Add_Acc_Service(void)
+{
+  tBleStatus ret;
+
+  uint8_t uuid[16];
+  
+  COPY_ACC_SERVICE_UUID(uuid);
+  ret = aci_gatt_add_serv(UUID_TYPE_128,  uuid, PRIMARY_SERVICE, 7,
+                          &accServHandle);
+  if (ret != BLE_STATUS_SUCCESS) goto fail;    
+  
+  
+  COPY_ACC_CHAR_UUID(uuid);  
+  ret =  aci_gatt_add_char(accServHandle, UUID_TYPE_128, uuid, 6,
+                           CHAR_PROP_NOTIFY|CHAR_PROP_READ,
+                           ATTR_PERMISSION_NONE,
+                           GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
+                           16, 0, &accCharHandle);
+  if (ret != BLE_STATUS_SUCCESS) goto fail;
+  
+  PRINTF("Service ACC added. Handle 0x%04X, Acc Charac handle: 0x%04X\n",accServHandle, accCharHandle);	
+  return BLE_STATUS_SUCCESS; 
+  
+fail:
+  PRINTF("Error while adding ACC service.\n");
+  return BLE_STATUS_ERROR ;
+    
+}
+
+/**
+ * @brief  Update acceleration characteristic value.
+ *
+ * @param  Structure containing acceleration value in mg
+ * @retval Status
+ */
+tBleStatus Acc_Update(AxesRaw_t *data)
+{  
+  tBleStatus ret;    
+  uint8_t buff[6]; 
+    
+  STORE_LE_16(buff,data->AXIS_X);
+  STORE_LE_16(buff+2,data->AXIS_Y);
+  STORE_LE_16(buff+4,data->AXIS_Z);
+	
+  ret = aci_gatt_update_char_value(accServHandle, accCharHandle, 0, 6, buff);
+	
+	
+  if (ret != BLE_STATUS_SUCCESS){
+    PRINTF("Error while updating ACC characteristic.\n") ;
     return BLE_STATUS_ERROR ;
   }
   return BLE_STATUS_SUCCESS;	
@@ -97,7 +174,7 @@ void setConnectable(void)
 {  
   tBleStatus ret;
   
-  const char local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME,'G','X','X'};
+  const char local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME,'S','P','I','C','Y'};
   
   /* disable scan response */
   hci_le_set_scan_resp_data(0,NULL);

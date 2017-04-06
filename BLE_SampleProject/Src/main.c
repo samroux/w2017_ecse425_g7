@@ -42,7 +42,8 @@
 #include "cube_hal.h"
 
 #include "osal.h"
-#include "sensor_service.h"
+//#include "sensor_service.h"
+#include "services.h"
 #include "debug.h"
 #include "stm32_bluenrg_ble.h"
 #include "bluenrg_utils.h"
@@ -81,6 +82,7 @@
 extern volatile uint8_t set_connectable;
 extern volatile int connected;
 extern AxesRaw_t axes_data;
+int counter;
 uint8_t bnrg_expansion_board = IDB04A1; /* at startup, suppose the X-NUCLEO-IDB04A1 is used */
 /**
  * @}
@@ -120,7 +122,7 @@ void User_Process(AxesRaw_t* p_axes);
  */
 int main(void)
 {
-  const char *name = "BlueNRG";
+  const char *name = "SPICY";
   uint8_t SERVER_BDADDR[] = {0x12, 0x34, 0x00, 0xE1, 0x80, 0x03};
   uint8_t bdaddr[BDADDR_SIZE];
   uint16_t service_handle, dev_name_char_handle, appearance_char_handle;
@@ -183,7 +185,7 @@ int main(void)
      * if different boards have the same MAC address, Android
      * applications unless you restart Bluetooth on tablet/phone
      */
-    SERVER_BDADDR[5] = 0x02;
+    SERVER_BDADDR[5] = 0x03;
   }
 
   /* The Nucleo board must be configured as SERVER */
@@ -234,42 +236,21 @@ int main(void)
   
   PRINTF("SERVER: BLE Stack Initialized\n");
   
+	/*--------Start Modifications here for services-------*/
+	
   ret = Add_Acc_Service();
   
   if(ret == BLE_STATUS_SUCCESS)
     PRINTF("Acc service added successfully.\n");
   else
     PRINTF("Error while adding Acc service.\n");
-  
-  ret = Add_Environmental_Sensor_Service();
-  
-  if(ret == BLE_STATUS_SUCCESS)
-    PRINTF("Environmental Sensor service added successfully.\n");
+	
+	ret = Add_Sample_Service();
+	
+	if(ret == BLE_STATUS_SUCCESS)
+    PRINTF("Sample service added successfully.\n");
   else
-    PRINTF("Error while adding Environmental Sensor service.\n");
-
-#if NEW_SERVICES
-  /* Instantiate Timer Service with two characteristics:
-   * - seconds characteristic (Readable only)
-   * - minutes characteristics (Readable and Notifiable )
-   */
-  ret = Add_Time_Service(); 
-  
-  if(ret == BLE_STATUS_SUCCESS)
-    PRINTF("Time service added successfully.\n");
-  else
-    PRINTF("Error while adding Time service.\n");  
-  
-  /* Instantiate LED Button Service with one characteristic:
-   * - LED characteristic (Readable and Writable)
-   */  
-  ret = Add_LED_Service();
-
-  if(ret == BLE_STATUS_SUCCESS)
-    PRINTF("LED service added successfully.\n");
-  else
-    PRINTF("Error while adding LED service.\n");  
-#endif
+    PRINTF("Error while adding Sample service.\n");
 
   /* Set output power level */
   ret = aci_hal_set_tx_power_level(1,4);
@@ -278,9 +259,6 @@ int main(void)
   {
     HCI_Process();
     User_Process(&axes_data);
-#if NEW_SERVICES
-    Update_Time_Characteristics();
-#endif
   }
 }
 
@@ -296,25 +274,38 @@ void User_Process(AxesRaw_t* p_axes)
   if(set_connectable){
     setConnectable();
     set_connectable = FALSE;
-  }  
+  } 
+
+	if (connected){
+		counter += 1;
+		counter %= 256;
+		Sample_Characteristic_Update (10);
+		printf("COUNTER: %d\n", counter );
+		 /* Update acceleration data */
+		p_axes->AXIS_X += 1;
+		p_axes->AXIS_Y -= 1;
+		p_axes->AXIS_Z += 2;
+		PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
+		Acc_Update(p_axes);
+	}
 
   /* Check if the user has pushed the button */
-  if(BSP_PB_GetState(BUTTON_KEY) == RESET)
-  {
-    while (BSP_PB_GetState(BUTTON_KEY) == RESET);
-    
-    //BSP_LED_Toggle(LED2); //used for debugging (BSP_LED_Init() above must be also enabled)
-    
-    if(connected)
-    {
-      /* Update acceleration data */
-      p_axes->AXIS_X += 1;
-      p_axes->AXIS_Y -= 1;
-      p_axes->AXIS_Z += 2;
-      //PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
-      Acc_Update(p_axes);
-    }
-  }
+//  if(BSP_PB_GetState(BUTTON_KEY) == RESET)
+//  {
+//    while (BSP_PB_GetState(BUTTON_KEY) == RESET);
+//    
+//    //BSP_LED_Toggle(LED2); //used for debugging (BSP_LED_Init() above must be also enabled)
+//    
+//    if(connected)
+//    {
+//      /* Update acceleration data */
+//      p_axes->AXIS_X += 1;
+//      p_axes->AXIS_Y -= 1;
+//      p_axes->AXIS_Z += 2;
+//      //PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
+//      Acc_Update(p_axes);
+//    }
+//  }
 }
 
 /**

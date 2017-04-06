@@ -89,6 +89,11 @@ do {\
   #define COPY_FREE_FALL_UUID(uuid_struct)    COPY_UUID_128(uuid_struct,0x02,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
   #define COPY_ACC_UUID(uuid_struct)          COPY_UUID_128(uuid_struct,0x03,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 
+	//UUID Definitions
+	#define COPY_SAMPLE_SERVICE_UUID(uuid_struct)			COPY_UUID_128(uuid_struct,0x02,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+	#define COPY_SAMPLE_CHAR_UUID(uuid_struct)				COPY_UUID_128(uuid_struct,0xe2,0x3e,0x78,0xa0, 0xcf,0x4a, 0x11,0xe1, 0x8f,0xfc, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+
+
   #define COPY_ENV_SENS_SERVICE_UUID(uuid_struct)  COPY_UUID_128(uuid_struct,0x04,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
   #define COPY_TEMP_CHAR_UUID(uuid_struct)         COPY_UUID_128(uuid_struct,0x05,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
   #define COPY_PRESS_CHAR_UUID(uuid_struct)        COPY_UUID_128(uuid_struct,0x06,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
@@ -205,6 +210,57 @@ tBleStatus Acc_Update(AxesRaw_t *data)
 	
   if (ret != BLE_STATUS_SUCCESS){
     PRINTF("Error while updating ACC characteristic.\n") ;
+    return BLE_STATUS_ERROR ;
+  }
+  return BLE_STATUS_SUCCESS;	
+}
+
+
+tBleStatus Add_Sample_Service(void)
+{
+  tBleStatus ret;
+
+  uint8_t uuid[16];
+  
+  COPY_SAMPLE_SERVICE_UUID(uuid);
+	//Adding Service 
+  ret = aci_gatt_add_serv(UUID_TYPE_128, uuid, PRIMARY_SERVICE, 7, &sampleServHandle);
+  if (ret != BLE_STATUS_SUCCESS) goto fail;    
+  
+  COPY_SAMPLE_CHAR_UUID(uuid);
+	//Adding Characteristics 
+  ret =  aci_gatt_add_char(sampleServHandle, UUID_TYPE_128, uuid, 1,
+                           CHAR_PROP_NOTIFY|CHAR_PROP_READ,
+                           ATTR_PERMISSION_NONE,
+                           GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
+                           16, 0, &sampleCharHandle);
+  if (ret != BLE_STATUS_SUCCESS) goto fail;
+  
+  PRINTF("Sample Service Added. Handle 0x%04X, Sample Characteristic Handle: 0x%04X\n",sampleServHandle, sampleCharHandle);	
+  return BLE_STATUS_SUCCESS; 
+  
+fail:
+  PRINTF("Error while adding Sample Service.\n");
+  return BLE_STATUS_ERROR ;
+    
+}
+
+/**
+ * @brief  Update sample characteristic value.
+ *
+ * @param  Value to write in the characteristic
+ * @retval Status
+ */
+tBleStatus Sample_Characteristic_Update(uint8_t value)
+{  
+  tBleStatus ret;
+	uint8_t buf[0];
+	buf[0] = value;
+	
+  ret = aci_gatt_update_char_value(sampleServHandle, sampleCharHandle, 0, 1, buf);
+	
+  if (ret != BLE_STATUS_SUCCESS){
+    PRINTF("Error while updating sample characteristic.\n") ;
     return BLE_STATUS_ERROR ;
   }
   return BLE_STATUS_SUCCESS;	

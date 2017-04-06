@@ -36,8 +36,8 @@
   */
   
 /* Define to prevent recursive inclusion -------------------------------------*/  
-#ifndef _SENSOR_SERVICE_H_
-#define _SENSOR_SERVICE_H_
+#ifndef _SERVICES_H_
+#define _SERVICES_H_
 
 #ifdef __cplusplus
  extern "C" {
@@ -70,31 +70,19 @@
  *  @{
  */
  
-/** @addtogroup SENSOR_SERVICE 
+/** @addtogroup SERVICES 
  * @{
  */
 
-/** @addtogroup SENSOR_SERVICE_Exported_Defines 
+/** @addtogroup SERVICES_Exported_Defines 
  * @{
  */
 /* Exported defines ----------------------------------------------------------*/   
 #define IDB04A1 0
 #define IDB05A1 1
 
-/**
- * @brief Instantiate two new services:
- *        1. Timer Service with two characteristics
- *           - Seconds characteristic (Readable only)
- *           - Minutes characteristics (Readable and Notifiable)
- *        2. LED Button Service with one characteristic
- *           - LED characteristic (Readable and Writable)
- */
-#define NEW_SERVICES 0
-/**
- * @}
- */
 
-/** @addtogroup SENSOR_SERVICE_Exported_Types
+/** @addtogroup SERVICES_Exported_Types
  *  @{
  */
 typedef int i32_t;
@@ -111,12 +99,13 @@ typedef struct {
  * @}
  */
 
-/** @addtogroup SENSOR_SERVICE_Exported_Functions
+/** @addtogroup SERVICES_Exported_Functions
  *  @{
  */
 tBleStatus Add_Acc_Service(void);
+tBleStatus Add_Sample_Service(void);
 tBleStatus Acc_Update(AxesRaw_t *data);
-tBleStatus Add_Environmental_Sensor_Service(void);
+tBleStatus Sample_Characteristic_Update(uint8_t value);
 void       setConnectable(void);
 void       enableNotification(void);
 void       GAP_ConnectionComplete_CB(uint8_t addr[6], uint16_t handle);
@@ -143,7 +132,7 @@ void       HCI_Event_CB(void *pckt);
 }
 #endif
 
-#endif /* _SENSOR_SERVICE_H_ */
+#endif /* _SERVICES_H_ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 
