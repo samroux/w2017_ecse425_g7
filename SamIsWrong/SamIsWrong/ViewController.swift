@@ -93,7 +93,11 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
             manager.connect(peripheral, options: nil)
         }
     }
-    
+    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        var randomValue : UInt8 = 9
+        let dataToWrite = Data(bytes: &randomValue, count: MemoryLayout<UInt8>.size)
+        peripheral.writeValue(dataToWrite, for: characteristic, type: .withResponse)
+    }
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         var samAss : UInt8 = 0
         characteristic.value!.copyBytes(to: &samAss, count: MemoryLayout<UInt8>.size)
