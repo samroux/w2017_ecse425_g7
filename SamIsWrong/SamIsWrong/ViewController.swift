@@ -66,15 +66,15 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
             let thisCharacteristic = characteristic as CBCharacteristic
             print("The following is a characteristic of \(service.uuid.uuidString)")
             //print ("The charact \(thisCharacteristic.value)")
-            
-            NSLog("%@", thisCharacteristic);
-            
-            if thisCharacteristic.uuid == BEAN_SCRATCH_UUID {
+        
+      
+            //if thisCharacteristic.uuid == BEAN_SCRATCH_UUID {
                 self.peripheral.setNotifyValue(
                     true,
                     for: thisCharacteristic
                 )
-            }
+           // }
+                //print ("\(thisCharacteristic)")
         }
     }
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
@@ -92,6 +92,12 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
             
             manager.connect(peripheral, options: nil)
         }
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        var samAss : UInt8 = 0
+        characteristic.value!.copyBytes(to: &samAss, count: MemoryLayout<UInt8>.size)
+        print("The value is \(samAss)")
     }
         
 

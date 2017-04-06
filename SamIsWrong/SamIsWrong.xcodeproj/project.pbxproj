@@ -96,7 +96,7 @@
 				TargetAttributes = {
 					C52527621E95BF54005322DF = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = FHH2MBGV8N;
+						DevelopmentTeam = 8ZK23DRA3H;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -259,11 +259,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = FHH2MBGV8N;
+				DEVELOPMENT_TEAM = 8ZK23DRA3H;
 				INFOPLIST_FILE = SamIsWrong/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.gmail-guzlan.amro.SamIsWrong";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.gmail-guzlan.amro.SamIsWron";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
@@ -273,11 +273,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = FHH2MBGV8N;
+				DEVELOPMENT_TEAM = 8ZK23DRA3H;
 				INFOPLIST_FILE = SamIsWrong/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.gmail-guzlan.amro.SamIsWrong";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.gmail-guzlan.amro.SamIsWron";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
