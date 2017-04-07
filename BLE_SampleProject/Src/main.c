@@ -180,7 +180,7 @@ int main(void)
      * if different boards have the same MAC address, Android
      * applications unless you restart Bluetooth on tablet/phone
      */
-    SERVER_BDADDR[5] = 0x03;
+    SERVER_BDADDR[5] = 0x69;
   }
 
   /* The Nucleo board must be configured as SERVER */
@@ -247,13 +247,13 @@ int main(void)
   else
     PRINTF("Error while adding Sample service.\n");
 	
-	ret = Add_W_Sample_Service();
-	
-	if(ret == BLE_STATUS_SUCCESS)
-    PRINTF("Write Sample service added successfully.\n");
-  else
-    PRINTF("Error while adding Write Sample service.(0x%02x)\n", ret);
-	
+//	ret = Add_W_Sample_Service();
+//	
+//	if(ret == BLE_STATUS_SUCCESS)
+//    PRINTF("Write Sample service added successfully.\n");
+//  else
+//    PRINTF("Error while adding Write Sample service.(0x%02x)\n", ret);
+//	
 
   /* Set output power level */
   ret = aci_hal_set_tx_power_level(1,4);
@@ -280,16 +280,16 @@ void User_Process(AxesRaw_t* p_axes)
   } 
 
 	if (connected){
-		Sample_Characteristic_Update (1);
-		WSample_Characteristic_Read ();
+		Sample_Characteristic_Update (10);
+		//WSample_Characteristic_Read ();
 		
 		//printf("COUNTER: %d\n", counter );
 		 /* Update acceleration data */
-		p_axes->AXIS_X += 1;
-		p_axes->AXIS_Y -= 1;
-		p_axes->AXIS_Z += 2;
+		p_axes->AXIS_X = 1;
+		p_axes->AXIS_Y = 10;
+		p_axes->AXIS_Z = 200;
 		//PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
-		Acc_Update(p_axes);
+		//Acc_Update(p_axes);
 	}
 
   /* Check if the user has pushed the button */

@@ -10,7 +10,7 @@ volatile AxesRaw_t axes_data = {0, 0, 0};
 uint16_t sampleServHandle, TXCharHandle, RXCharHandle;
 uint16_t sampleServHandle, sampleCharHandle;
 uint16_t wsampleServHandle, wsampleCharHandle;
-uint16_t accServHandle, accCharHandle;
+uint16_t accServHandle, accCharHandle, acc_x_CharHandle, acc_y_CharHandle, acc_z_CharHandle;
 uint16_t buttonServHandle, buttonCharHandle;
 uint16_t pdataServHandle, pdataCharHandle;
 
@@ -29,9 +29,9 @@ do {\
 
 #define COPY_ACC_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x03,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_ACC_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe3,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-//#define COPY_ACC_X_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe4,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-//#define COPY_ACC_Y_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe5,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-//#define COPY_ACC_Z_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe6,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+#define COPY_ACC_X_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe4,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+#define COPY_ACC_Y_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe5,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+#define COPY_ACC_Z_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe6,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 
 #define COPY_BUTTON_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x04,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_BUTTON_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe7,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
@@ -39,8 +39,14 @@ do {\
 #define COPY_W_SAMPLE_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x05,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_W_SAMPLE_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe8,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 
-//#define COPY_PDATA_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x05,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-//#define COPY_PDATA_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe8,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+//#define COPY_PDATA_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x06,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+//#define COPY_PDATA_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe9,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+//#define COPY_PDATA_X_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe8,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+//#define COPY_PDATA_Y_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe8,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+//#define COPY_PDATA_Z_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe8,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+
+
+
 
 /* Store Value into a buffer in Little Endian Format */
 #define STORE_LE_16(buf, val)    ( ((buf)[0] =  (uint8_t) (val)    ) , \
@@ -91,12 +97,10 @@ tBleStatus Sample_Characteristic_Update(uint8_t value)
 {  
   tBleStatus ret;
 	uint8_t buf[0];
-	buf[0] = value;
-	//buf[0] = 1;
+	//buf[0] = value;
+	buf[0] = 2;
 	
   ret = aci_gatt_update_char_value(sampleServHandle, sampleCharHandle, 0, 1, buf);
-	
-	printf ("Read Value: %d\n", buf);
 	
 	/*
 	0x00: Success
@@ -138,7 +142,7 @@ tBleStatus Add_W_Sample_Service(void)
   COPY_W_SAMPLE_CHAR_UUID(uuid);
 	//Adding Characteristics 
   ret =  aci_gatt_add_char(wsampleServHandle, UUID_TYPE_128, uuid, 1,
-                           CHAR_PROP_WRITE,
+                           CHAR_PROP_WRITE|CHAR_PROP_NOTIFY,
                            ATTR_PERMISSION_NONE,
                            GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP,
                            16, 0, &wsampleCharHandle);
@@ -166,9 +170,13 @@ tBleStatus WSample_Characteristic_Read(void)
 {  
   tBleStatus ret;
 	uint8_t buf;
-	uint16_t data_len_out_p = 1;
+	uint16_t data_len_out_p = 10;
 	
-  ret = aci_gatt_read_handle_value(wsampleCharHandle, 1, &data_len_out_p, &buf);
+  ret = aci_gatt_read_handle_value(wsampleCharHandle, 10, &data_len_out_p, &buf);
+	
+	
+	
+	printf ("Read Value: %d\n", buf);
 	
 	/*
 	0x00: Success
@@ -201,11 +209,11 @@ tBleStatus Add_Acc_Service(void)
   uint8_t uuid[16];
   
   COPY_ACC_SERVICE_UUID(uuid);
-  ret = aci_gatt_add_serv(UUID_TYPE_128,  uuid, PRIMARY_SERVICE, 7,
+  ret = aci_gatt_add_serv(UUID_TYPE_128,  uuid, PRIMARY_SERVICE, 16,
                           &accServHandle);
   if (ret != BLE_STATUS_SUCCESS) goto fail;    
   
-  
+  //Concat of all 3 values
   COPY_ACC_CHAR_UUID(uuid);  
   ret =  aci_gatt_add_char(accServHandle, UUID_TYPE_128, uuid, 6,
                            CHAR_PROP_NOTIFY|CHAR_PROP_READ,
@@ -213,8 +221,35 @@ tBleStatus Add_Acc_Service(void)
                            GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
                            16, 0, &accCharHandle);
   if (ret != BLE_STATUS_SUCCESS) goto fail;
+	
+	// x-component
+	COPY_ACC_X_CHAR_UUID(uuid);  
+  ret =  aci_gatt_add_char(accServHandle, UUID_TYPE_128, uuid, 2,
+                           CHAR_PROP_NOTIFY|CHAR_PROP_READ,
+                           ATTR_PERMISSION_NONE,
+                           GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
+                           16, 0, &acc_x_CharHandle);
+  if (ret != BLE_STATUS_SUCCESS) goto fail;
+	
+	// y-component
+	COPY_ACC_Y_CHAR_UUID(uuid);  
+  ret =  aci_gatt_add_char(accServHandle, UUID_TYPE_128, uuid, 2,
+                           CHAR_PROP_NOTIFY|CHAR_PROP_READ,
+                           ATTR_PERMISSION_NONE,
+                           GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
+                           16, 0, &acc_y_CharHandle);
+  if (ret != BLE_STATUS_SUCCESS) goto fail;
+	
+		// y-component
+	COPY_ACC_Z_CHAR_UUID(uuid);  
+  ret =  aci_gatt_add_char(accServHandle, UUID_TYPE_128, uuid, 2,
+                           CHAR_PROP_NOTIFY|CHAR_PROP_READ,
+                           ATTR_PERMISSION_NONE,
+                           GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
+                           16, 0, &acc_z_CharHandle);
+  if (ret != BLE_STATUS_SUCCESS) goto fail;
   
-  PRINTF("Service ACC added. Handle 0x%04X, Acc Charac handle: 0x%04X\n",accServHandle, accCharHandle);	
+  PRINTF("Service ACC added. Handle 0x%04X, Acc Charac handle: 0x%04X, Acc X Charac handle: 0x%04X, Acc Y Charac handle: 0x%04X, Acc Z Charac handle: 0x%04X\n",accServHandle, accCharHandle, acc_x_CharHandle, acc_y_CharHandle, acc_z_CharHandle);	
   return BLE_STATUS_SUCCESS; 
   
 fail:
@@ -232,19 +267,49 @@ fail:
 tBleStatus Acc_Update(AxesRaw_t *data)
 {  
   tBleStatus ret;    
-  uint8_t buff[6]; 
-    
-  STORE_LE_16(buff,data->AXIS_X);
+  uint8_t buff[6];
+	STORE_LE_16(buff,data->AXIS_X);
   STORE_LE_16(buff+2,data->AXIS_Y);
   STORE_LE_16(buff+4,data->AXIS_Z);
 	
+	uint8_t buff_x[2];
+	STORE_LE_16(buff,data->AXIS_X);
+	
+	uint8_t buff_y[2];
+	STORE_LE_16(buff,data->AXIS_Y);
+	
+	uint8_t buff_z[2];
+	STORE_LE_16(buff,data->AXIS_Z);
+	
   ret = aci_gatt_update_char_value(accServHandle, accCharHandle, 0, 6, buff);
 	
-	
   if (ret != BLE_STATUS_SUCCESS){
-    PRINTF("Error while updating ACC characteristic.\n") ;
+    PRINTF("Error while updating ACC characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
+	
+	ret = aci_gatt_update_char_value(accServHandle, acc_x_CharHandle, 0, 2, buff_x);
+	
+  if (ret != BLE_STATUS_SUCCESS){
+    PRINTF("Error while updating ACC X characteristic.(0x%02x)\n", ret) ;
+    return BLE_STATUS_ERROR ;
+  }
+	
+	ret = aci_gatt_update_char_value(accServHandle, acc_y_CharHandle, 0, 2, buff_y);
+	
+  if (ret != BLE_STATUS_SUCCESS){
+    PRINTF("Error while updating ACC Y characteristic.(0x%02x)\n", ret) ;
+    return BLE_STATUS_ERROR ;
+  }
+	
+	ret = aci_gatt_update_char_value(accServHandle, acc_x_CharHandle, 0, 2, buff_z);
+	
+  if (ret != BLE_STATUS_SUCCESS){
+    PRINTF("Error while updating ACC Z characteristic.(0x%02x)\n", ret) ;
+    return BLE_STATUS_ERROR ;
+  }
+	
+	
   return BLE_STATUS_SUCCESS;	
 }
 
