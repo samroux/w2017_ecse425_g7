@@ -23,6 +23,18 @@ Discovery board.
 -> Receive RAW accelerometer data from Discovery Board using UART
 
 -> Send data to smartphone using bluetooth
+    -> 3 Services
+        -> Accelerometer
+            -> 3 Characterictics
+                -> x_axis
+                -> y_axis
+                -> z_axis
+        -> Button
+        -> Processed Data
+            -> 3 Characterictics
+              -> x_axis
+              -> y_axis
+              -> z_axis
 
 -> Receive processed data from smartphone using bluetooth
 
