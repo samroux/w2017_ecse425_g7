@@ -10,6 +10,8 @@ smartphone.
 
 -> Send RAW data to Nucleo using UART
 
+-> Send push button status to Nucleo using UART
+
 -> Receive Processed Data from Nucleo using UART
 
 -> Output processed Accelerometer Data on DAC
@@ -44,12 +46,12 @@ platform. Basic processing includes operations such as mirror-imaging of the dat
 • Bonus: Performs advanced processing (such as filtering, computing pitch and roll) of the
 data using Lambda functions.
 
--> Responds to file upload requests
+-> Responds to file upload requests (AWS is the web service repsonding)
 
--> Store raw data files
+-> Store raw data files (in S3)
 
 -> Performs lambda (optional) processing on raw data
 
--> Stores processed file
+-> Stores processed file (in S3)
 
--> Responds to download request
+-> Responds to download request (AWS takes care of this)
