@@ -7,8 +7,11 @@ smartphone.
 • Reads data obtained from AWS cloud through Nucleo board and outputs it on the DAC.
 
 -> Get Accelerometer Readings (RAW)
+
 -> Send RAW data to Nucleo using UART
+
 -> Receive Processed Data from Nucleo using UART
+
 -> Output processed Accelerometer Data on DAC
 
 2. STM Nucleo board with BLE board
@@ -16,16 +19,22 @@ smartphone.
 Discovery board.
 
 -> Receive RAW accelerometer data from Discovery Board using UART
+
 -> Send data to smartphone using bluetooth
+
 -> Receive processed data from smartphone using bluetooth
+
 -> Send processed data to Discovery board using UART
 
 3. Smartphone
 • Interconnects Nucleo and Discovery board with AWS cloud. Accesses cloud services, including the authentication. Sends processed data back to Nucleo board
 
 -> Receive RAW accelerometer data from Nucleo using Bluetooth
+
 -> Send raw data to aws
+
 -> Send processed data to aws (if not using lambda)
+
 -> Make Data available on phone display
 
 
