@@ -1,7 +1,7 @@
 # w2017_ecse426_g7
 
 ## Project Specifications
-1. STM Discovery board
+#### 1. STM Discovery board
 • Submits accelerometer readings to the AWS cloud, through the Nucleo board and
 smartphone.
 • Reads data obtained from AWS cloud through Nucleo board and outputs it on the DAC.
@@ -14,7 +14,7 @@ smartphone.
 
 -> Output processed Accelerometer Data on DAC
 
-2. STM Nucleo board with BLE board
+#### 2. STM Nucleo board with BLE board
 • Interconnects Discovery board with smartphone. Provides BLE functionality to the
 Discovery board.
 
@@ -26,7 +26,7 @@ Discovery board.
 
 -> Send processed data to Discovery board using UART
 
-3. Smartphone
+#### 3. Smartphone
 • Interconnects Nucleo and Discovery board with AWS cloud. Accesses cloud services, including the authentication. Sends processed data back to Nucleo board
 
 -> Receive RAW accelerometer data from Nucleo using Bluetooth
@@ -38,7 +38,7 @@ Discovery board.
 -> Make Data available on phone display
 
 
-4. AWS cloud
+#### 4. AWS cloud
 • Stores Discovery board data, manipulated files, makes data visible to clients on any
 platform. Basic processing includes operations such as mirror-imaging of the data.
 • Bonus: Performs advanced processing (such as filtering, computing pitch and roll) of the
