@@ -43,3 +43,13 @@ Discovery board.
 platform. Basic processing includes operations such as mirror-imaging of the data.
 • Bonus: Performs advanced processing (such as filtering, computing pitch and roll) of the
 data using Lambda functions.
+
+-> Responds to file upload requests
+
+-> Store raw data files
+
+-> Performs lambda (optional) processing on raw data
+
+-> Stores processed file
+
+-> Responds to download request
