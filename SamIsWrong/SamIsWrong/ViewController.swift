@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreBluetooth
+import AWSMobileHubHelper
 
 
 
@@ -29,6 +30,7 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     var ACC_CHAR_X_UUID : CBUUID!
     var ACC_CHAR_Y_UUID : CBUUID!
     var ACC_CHAR_Z_UUID : CBUUID!
+    var ACC_CHAR_AWS_UUID: CBUUID!
     
     var BUTTON_SERVICE_UUID : CBUUID!
     var BUTTON_CHAR_UUID : CBUUID!
@@ -49,6 +51,19 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     var timer = Timer()
     var buttonColour = UIColor.white.cgColor
     
+    let fileName = "Readings.csv"
+    var path : NSURL!
+    
+    
+    var currentX = 0
+    var currentY = 0
+    var currentZ = 0
+    
+    
+    var writeToFile = false
+    var contentsToWrite : String!
+    
+    
     @IBOutlet weak var scanLabel: UILabel!
     @IBOutlet weak var scanButton: UIButton!
     @IBAction func scan(_ sender: Any) {
@@ -56,12 +71,14 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         scanLabel.textColor = UIColor.white
         central.scanForPeripherals(withServices: nil, options: nil)
     }
-   
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        createFile()
         setupBluetooth()
         setBackgroundColor()
         setupScanButton()
+
         timer = Timer.scheduledTimer(timeInterval: 3.0, target: self, selector: #selector(animateButton), userInfo: nil, repeats: true)
     }
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -97,7 +114,7 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
             )
         }
         
-        //print (" ***** Data Output ***** ")
+        print (" ***** Data Output ***** ")
         
     }
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
@@ -142,12 +159,13 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         
-        //print ("didUpdateValueFor char")
+        
         var value : UInt8 = 0;
         
         if characteristic.value != nil {
             characteristic.value!.copyBytes(to: &value, count: MemoryLayout<UInt8>.size)
-
+            print(value)
+            
         }
         else{
             print("This is null")
@@ -165,26 +183,47 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
             }
             else if characteristic.uuid == ACC_CHAR_X_UUID{
                 charname = "acc_x"
+                currentX = Int(value)
             }
             else if characteristic.uuid == ACC_CHAR_Y_UUID{
                 charname = "acc_y"
+                currentY = Int(value)
+            }else if characteristic.uuid == ACC_CHAR_AWS_UUID{
+                if value == 1  && writeToFile == true  {
+                    print("Writing")
+                    contentsToWrite.append("\(currentX),\(currentY),\(currentZ)\n")
+                }
+                else if value == 0 && writeToFile == true  {
+                    print("stopped writing")
+                    uploadToAWS()
+                    writeToFile = false
+                }else if value == 1 && writeToFile == false{
+                    print("[imgwpirg")
+                    writeToFile = true
+                }
             }
+                
+                
             else if characteristic.uuid == ACC_CHAR_Z_UUID{
                 charname = "acc_z"
+                currentZ = Int(value)
             }
+            
         }
         else if characteristic.service.uuid == SAMPLE_SERVICE_UUID {
             servicename = "Sample"
             if characteristic.uuid == SAMPLE_CHAR_UUID {
                 charname = "data"
             }
-            
         }
         else {
             servicename = "Undefined"
             charname = "Undefined"
         }
-        print("Gettign values from \(charname) = \(value)")
+        
+        if writeToFile{
+            contentsToWrite.append("\(currentX),\(currentY),\(currentZ)\n")
+        }
     }
     func setupBluetooth(){
         BEAN_NAME  = "SPICY"
@@ -196,6 +235,7 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         let accXCharacteristicByteArray : [UInt8] = [0xe4,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
         let accYCharacteristicByteArray : [UInt8] = [0xe5,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
         let accZCharacteristicByteArray : [UInt8] = [0xe6,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
+        let accAWSCharacteristicByteArray : [UInt8] = [0xf3,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
         
         let buttonServiceByteArray : [UInt8] = [0x04,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
         let buttonCharacteristicByteArray : [UInt8] = [0xe7,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
@@ -219,6 +259,8 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         ACC_CHAR_X_UUID =  CBUUID(string: NSUUID(uuidBytes: accXCharacteristicByteArray).uuidString)
         ACC_CHAR_Y_UUID =  CBUUID(string: NSUUID(uuidBytes: accYCharacteristicByteArray).uuidString)
         ACC_CHAR_Z_UUID =  CBUUID(string: NSUUID(uuidBytes: accZCharacteristicByteArray).uuidString)
+        ACC_CHAR_AWS_UUID = CBUUID(string: NSUUID(uuidBytes: accAWSCharacteristicByteArray).uuidString)
+        
         
         BUTTON_SERVICE_UUID = CBUUID(string: NSUUID(uuidBytes: buttonServiceByteArray).uuidString)
         BUTTON_CHAR_UUID = CBUUID(string: NSUUID(uuidBytes: buttonCharacteristicByteArray).uuidString)
@@ -252,7 +294,18 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         scanButton.layer.borderWidth = 4
         scanButton.layer.borderColor = borderColor.cgColor
         scanLabel.text = ""
-
+        
+    }
+    func uploadToAWS(){
+        do {
+            //try contentsToWrite.write(to: path as URL, atomically: true, encoding: String.Encoding.utf8)
+            let data  = contentsToWrite.data(using: String.Encoding.utf8)
+            uploadWithData(data: data!, forKey: "readings.csv")
+            
+        } catch {
+            print("Failed to create file")
+            print("\(error)")
+        }
     }
     func animateButton (){
         self.scanButton.layer.borderWidth = 3.0
@@ -264,6 +317,29 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         self.scanButton.layer.borderColor = UIColor.clear.cgColor
         self.scanButton.layer.add(color, forKey: "")
     }
+    func createFile(){
+        path = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(self.fileName)! as NSURL
+        contentsToWrite = "X,Y,Z\n"
+    }
+    private func uploadWithData(data: Data, forKey key: String) {
+        let manager = AWSUserFileManager.defaultUserFileManager()
+        let localContent = manager.localContent(with: data, key: key)
+        localContent.uploadWithPin(
+            onCompletion: false,
+            progressBlock: {[weak self](content: AWSLocalContent, progress: Progress) -> Void in
+                guard let strongSelf = self else { return }
+                /* Show progress in UI. */
+            },
+            completionHandler: {[weak self](content: AWSLocalContent?, error: Error?) -> Void in
+                guard let strongSelf = self else { return }
+                if let error = error {
+                    print("Failed to upload an object. \(error)")
+                } else {
+                    print("Object upload complete. \(error)")
+                }
+        })
+    }
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
