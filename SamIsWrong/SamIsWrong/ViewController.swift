@@ -64,6 +64,7 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     var contentsToWrite : String!
     
     
+    
     @IBOutlet weak var scanLabel: UILabel!
     @IBOutlet weak var scanButton: UIButton!
     @IBAction func scan(_ sender: Any) {
@@ -99,7 +100,11 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
             //print("The service is \(service.uuid.uuidString)")
             
             if service.uuid == ACC_SERVICE_UUID {
+                
                 // print ("Acc. Service (\(service.uuid.uuidString))")
+            }
+            else if service.uuid == WSAMPLE_SERVICE_UUID {
+                
             }
             else if service.uuid == SAMPLE_SERVICE_UUID {
                 // print ("Sample Service (\(service.uuid.uuidString))")
@@ -119,8 +124,18 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     }
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         for characteristic in service.characteristics! {
+            
             let thisCharacteristic = characteristic as CBCharacteristic
-            //print ("    Char: \(thisCharacteristic.uuid.uuidString)")
+            if thisCharacteristic.uuid == WSAMPLE_CHAR_UUID {
+                print ("    Char: \(thisCharacteristic.uuid.uuidString)")
+                print (thisCharacteristic.properties.contains(.write))
+            }
+            else{
+                print("else")
+            }
+//            print ("    Char: \(thisCharacteristic.uuid.uuidString)")
+//            //print (thisCharacteristic.properties.contains(.write))
+          
             
             self.peripheral.setNotifyValue(
                 true,
@@ -288,6 +303,9 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         bc.zPosition = -1
         self.view.layer.insertSublayer(bc, at: 0)
         
+    }
+    func writeToPeripheral(){
+//        for service 
     }
     func setupScanButton(){
         let borderColor = UIColor(red: 0.41, green: 1.28, blue: 1.85, alpha: 0.0)
