@@ -46,19 +46,27 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     
     var central : CBCentralManager!
     
+    var timer = Timer()
+    var buttonColour = UIColor.white.cgColor
+    
+    @IBOutlet weak var scanLabel: UILabel!
+    @IBOutlet weak var scanButton: UIButton!
+    @IBAction func scan(_ sender: Any) {
+        scanLabel.text = "(Scanning...)"
+        scanLabel.textColor = UIColor.white
+        central.scanForPeripherals(withServices: nil, options: nil)
+    }
+   
     override func viewDidLoad() {
         super.viewDidLoad()
         setupBluetooth()
         setBackgroundColor()
-        
-        // Do any additional setup after loading the view, typically from a nib.
-        
-        
+        setupScanButton()
+        timer = Timer.scheduledTimer(timeInterval: 3.0, target: self, selector: #selector(animateButton), userInfo: nil, repeats: true)
     }
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if central.state == .poweredOn {
             self.central = central
-            //central.scanForPeripherals(withServices: nil, options: nil)
         } else {
             print("Bluetooth not available.")
         }
@@ -109,12 +117,13 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
             as? String
         
         if device != nil {
-            //print ("\(device!) detected")
+            print ("\(device!) detected")
         }
         
         if device != nil && device! == BEAN_NAME {
-            //print ("Connecting to \(device!)...")
-            
+            scanLabel.text = "Connecting to SPICY !"
+            scanLabel.textColor = UIColor.green
+            buttonColour = UIColor.green.cgColor
             self.manager.stopScan()
             
             self.peripheral = peripheral
@@ -130,6 +139,7 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         peripheral.writeValue(dataToWrite, for: characteristic, type: .withResponse)
     }
     
+    
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         
         //print ("didUpdateValueFor char")
@@ -137,6 +147,7 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         
         if characteristic.value != nil {
             characteristic.value!.copyBytes(to: &value, count: MemoryLayout<UInt8>.size)
+
         }
         else{
             print("This is null")
@@ -173,6 +184,7 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
             servicename = "Undefined"
             charname = "Undefined"
         }
+        print("Gettign values from \(charname) = \(value)")
     }
     func setupBluetooth(){
         BEAN_NAME  = "SPICY"
@@ -235,7 +247,23 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         self.view.layer.insertSublayer(bc, at: 0)
         
     }
-    
+    func setupScanButton(){
+        let borderColor = UIColor(red: 0.41, green: 1.28, blue: 1.85, alpha: 0.0)
+        scanButton.layer.borderWidth = 4
+        scanButton.layer.borderColor = borderColor.cgColor
+        scanLabel.text = ""
+
+    }
+    func animateButton (){
+        self.scanButton.layer.borderWidth = 3.0
+        let color: CABasicAnimation = CABasicAnimation(keyPath: "borderColor")
+        color.fromValue = UIColor.clear.cgColor
+        color.toValue = buttonColour
+        color.duration = 1.5
+        color.autoreverses = true
+        self.scanButton.layer.borderColor = UIColor.clear.cgColor
+        self.scanButton.layer.add(color, forKey: "")
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
