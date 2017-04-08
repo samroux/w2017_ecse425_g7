@@ -52,9 +52,9 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         
         let accServiceByteArray : [UInt8] = [0x03,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
         let accCharacteristicByteArray : [UInt8] = [0xe3,0x3e,0x78,0xa0, 0xcf,0x4a, 0x11,0xe1, 0x8f,0xfc, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
-        let accXCharacteristicByteArray : [UInt8] = [0xe4,0x3e,0x78,0xa0, 0xcf,0x4a, 0x11,0xe1, 0x8f,0xfc, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
-        let accYCharacteristicByteArray : [UInt8] = [0xe5,0x3e,0x78,0xa0, 0xcf,0x4a, 0x11,0xe1, 0x8f,0xfc, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
-        let accZCharacteristicByteArray : [UInt8] = [0xe6,0x3e,0x78,0xa0, 0xcf,0x4a, 0x11,0xe1, 0x8f,0xfc, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
+        let accXCharacteristicByteArray : [UInt8] = [0xe4,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
+        let accYCharacteristicByteArray : [UInt8] = [0xe5,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
+        let accZCharacteristicByteArray : [UInt8] = [0xe6,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
         
         let buttonServiceByteArray : [UInt8] = [0x04,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
         let buttonCharacteristicByteArray : [UInt8] = [0xe7,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b]
@@ -79,7 +79,7 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         ACC_CHAR_UUID =  CBUUID(string: NSUUID(uuidBytes: accCharacteristicByteArray).uuidString)
         ACC_CHAR_X_UUID =  CBUUID(string: NSUUID(uuidBytes: accXCharacteristicByteArray).uuidString)
         ACC_CHAR_Y_UUID =  CBUUID(string: NSUUID(uuidBytes: accYCharacteristicByteArray).uuidString)
-        ACC_CHAR_UUID =  CBUUID(string: NSUUID(uuidBytes: accZCharacteristicByteArray).uuidString)
+        ACC_CHAR_Z_UUID =  CBUUID(string: NSUUID(uuidBytes: accZCharacteristicByteArray).uuidString)
         
         BUTTON_SERVICE_UUID = CBUUID(string: NSUUID(uuidBytes: buttonServiceByteArray).uuidString)
         BUTTON_CHAR_UUID = CBUUID(string: NSUUID(uuidBytes: buttonCharacteristicByteArray).uuidString)
@@ -142,7 +142,7 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         for characteristic in service.characteristics! {
             let thisCharacteristic = characteristic as CBCharacteristic
             //print("The following is a characteristic of \(service.uuid.uuidString)")
-            //print ("The charact \(thisCharacteristic.value)")
+            print ("    Char: \(thisCharacteristic.uuid.uuidString)")
         
       
             //if thisCharacteristic.uuid == BEAN_SCRATCH_UUID {
@@ -199,8 +199,8 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         
         //let value_int : Double = data.withUnsafeBytes { $0.pointee }
         
-        var servicename : String = "Undefined"
-        var charname : String = "data"
+        var servicename : String = "None"
+        var charname : String = "None"
         
         if characteristic.service.uuid == ACC_SERVICE_UUID {
             servicename = "Acc"
@@ -226,12 +226,11 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         }
         else {
             servicename = "Undefined"
-            charname = "data"
+            charname = "Undefined"
         }
         
-        
-        print("\(servicename).\(charname) = \(value) = \(characteristic.value)")
         //print("\(servicename).\(charname)")
+        print("\(servicename).\(charname) = \(value) = \(characteristic.value)")
     }
         
 
