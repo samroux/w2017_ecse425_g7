@@ -40,6 +40,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32xx_it.h"
 #include "debug.h"
+#include "Uart.h"
 
 /** @addtogroup X-CUBE-BLE1_Applications
  *  @{
@@ -159,6 +160,19 @@ void PUSH_BUTTON_EXTI_IRQHandler(void)
   
   button_event = 1;
 }
+
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+//{
+//	uart_data_available = 1; 
+//	HAL_UART_Receive_IT(huart, &data_a[0], 500);
+//}
+
+//void USART2_IRQHandler(void)
+//{
+//	HAL_UART_IRQHandler(&huart);
+//	//uart_data_available = 1; 
+//	HAL_UART_RxCpltCallback(&huart);
+//}
 
 /******************************************************************************/
 /*                 STM32L0xx Peripherals Interrupt Handlers                   */

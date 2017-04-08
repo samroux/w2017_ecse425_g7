@@ -29,6 +29,8 @@
 .\objects\main.o: .\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr.h
 .\objects\main.o: .\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr_ex.h
 .\objects\main.o: .\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_spi.h
+.\objects\main.o: .\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h
+.\objects\main.o: .\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_usart.h
 .\objects\main.o: .\Drivers\BSP\STM32F4xx-Nucleo\stm32f4xx_nucleo.h
 .\objects\main.o: .\Drivers\BSP\STM32F4xx-Nucleo\stm32f4xx_nucleo_bluenrg.h
 .\objects\main.o: .\BLE\STM32_BlueNRG\SimpleBlueNRG_HCI\includes\osal.h
@@ -58,3 +60,4 @@
 .\objects\main.o: .\Drivers\BSP\X-NUCLEO-IDB04A1\stm32_bluenrg_ble.h
 .\objects\main.o: .\BLE\STM32_BlueNRG\SimpleBlueNRG_HCI\includes\bluenrg_utils.h
 .\objects\main.o: .\BLE\STM32_BlueNRG\SimpleBlueNRG_HCI\includes\compiler.h
+.\objects\main.o: .\Inc\UART.h

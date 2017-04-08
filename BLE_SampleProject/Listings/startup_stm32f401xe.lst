@@ -773,18 +773,18 @@ ARM Macro Assembler    Page 12
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=.\objects\startup_stm32f401xe.d -o.\objects\startup_stm32f401xe
-.o -IC:\Users\Sam\Documents\_ecse426\FinalProject\w2017_ecse426_g7\BLE_SamplePr
-oject\RTE\_Application -IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0\Drivers\
-CMSIS\Device\ST\STM32F4xx\Include -IC:\Keil_v5\ARM\CMSIS\Include --predefine="_
-_EVAL SETA 1" --predefine="__UVISION_VERSION SETA 522" --predefine="_RTE_ SETA 
-1" --predefine="STM32F401xE SETA 1" --list=.\listings\startup_stm32f401xe.lst s
+.o -I"C:\Users\chris\Documents\ECSE 426\w2017_ecse426_g7\BLE_SampleProject\RTE\
+_Application" -IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0\Drivers\CMSIS\Dev
+ice\ST\STM32F4xx\Include -IC:\Keil_v5\ARM\CMSIS\Include --predefine="__EVAL SET
+A 1" --predefine="__UVISION_VERSION SETA 522" --predefine="_RTE_ SETA 1" --pred
+efine="STM32F401xE SETA 1" --list=.\listings\startup_stm32f401xe.lst startup_st
 
 
 
 ARM Macro Assembler    Page 13 
 
 
-tartup_stm32f401xe.s
+m32f401xe.s
 
 
 

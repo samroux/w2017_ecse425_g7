@@ -47,6 +47,7 @@
 #include "stm32_bluenrg_ble.h"
 #include "bluenrg_utils.h"
 
+#include "UART.h"
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_cortex.h"
@@ -56,6 +57,26 @@
 
 #include <string.h>
 #include <stdio.h>
+
+#define TIMER_7SEG_DELAY 	10
+#define UART_RX_BUFFER_SIZE	500
+
+#define BDADDR_SIZE 6
+#define DATA_SIZE 0xff
+#define RX_ARR_SIZE 0xff
+#define TIMEOUT   2000
+
+ uint8_t pData_unfilt_x1[RX_ARR_SIZE];
+ uint8_t pData_unfilt_x2[RX_ARR_SIZE];
+ uint8_t pData_unfilt_y1[RX_ARR_SIZE];
+uint8_t pData_unfilt_y2[RX_ARR_SIZE];
+ uint8_t pData_unfilt_z1[RX_ARR_SIZE];
+ uint8_t pData_unfilt_z2[RX_ARR_SIZE];
+uint8_t pData_filt[DATA_SIZE];
+
+int uart_transmission_done;
+uint8_t data_a[500];
+int uart_data_available;
 
 /** @addtogroup X-CUBE-BLE1_Applications
  *  @{
@@ -68,12 +89,25 @@
 /** @defgroup MAIN 
  * @{
  */
+//void init_uart(void);
+//GPIO_InitTypeDef Rx;
+//GPIO_InitTypeDef Tx;
+//GPIO_InitTypeDef Flg;
+UART_HandleTypeDef huart;
 
 /** @defgroup MAIN_Private_Defines 
  * @{
  */
 /* Private defines -----------------------------------------------------------*/
 #define BDADDR_SIZE 6
+
+/* Size of Transmission buffer */
+#define TXBUFFERSIZE                      (COUNTOF(aTxBuffer))
+/* Size of Reception buffer */
+#define RXBUFFERSIZE                      TXBUFFERSIZE
+  
+/* Exported macro ------------------------------------------------------------*/
+#define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
 
 /**
  * @}
@@ -102,11 +136,7 @@ void User_Process(AxesRaw_t* p_axes);
 /**
  * @}
  */
-
-
  
- 
-
 /**
  * @brief  Main function to show how to use the BlueNRG Bluetooth Low Energy
  *         expansion board to send data from a Nucleo board to a smartphone
@@ -165,18 +195,6 @@ int main(void)
 	/* SYSTEM CLOCK = 32 MHz */
   SystemClock_Config();
   
-  //Possible UART Config
-  UART_HandleTypeDef huart2;
-
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  HAL_UART_Init(&huart2);
-
   /* Initialize the BlueNRG SPI driver */
   BNRG_SPI_Init();
   
@@ -197,6 +215,113 @@ int main(void)
    */
   BlueNRG_RST();
   
+	init_uart();
+	init_gpio();
+	
+//	uint8_t data_T[10] = {15,1,2,3,4,5,6,7,8,9};
+//	printf("data 0: %d\n", data_T[9]);
+//	
+//	//while(1)
+//	{
+//		//uart_send_byte(data, 10);
+//		//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+//		HAL_UART_Transmit_IT(&huart, (uint8_t *)data_T, 10);
+//		HAL_Delay(500);
+//	}
+//	
+//	int i;
+//	uint8_t data_RX[10];
+//	
+//	HAL_UART_Receive_IT(&huart, (uint8_t *)data_RX, 10);
+//	
+//	
+//	while(1){
+//		if(uart_data_available == 1){
+//			for(i = 0; i<10; i++){
+//				printf("%d-->%i\n", i, data_RX[i]);	
+//			}
+//			uart_data_available = 0;
+//		}
+//	}
+	
+	int* vals;
+	int* vals2;
+	int* vals3;
+	int i = 0;
+	
+	while (HAL_UART_GetState(&huart) == HAL_BUSY);
+	printf("not busy\n");
+	uint8_t a[] = {6};
+	
+	
+
+ //Buffer used for reception 
+uint8_t aTxBuffer[] = {5, 6, 9, 11};
+uint8_t aRxBuffer[RXBUFFERSIZE];
+
+	int j= 0;
+	while (j < RXBUFFERSIZE)
+	{
+		//HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+	
+		
+		
+		if(HAL_UART_Transmit(&huart, aTxBuffer, TXBUFFERSIZE, 2000)== HAL_OK)
+		{
+			printf("trans\n");
+		}
+		printf("bs:%d\n", aTxBuffer[0]);
+		printf("bs2:%d\n", aTxBuffer[TXBUFFERSIZE-1]);
+		//HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+		//HAL_Delay(500);
+		
+		HAL_StatusTypeDef status = HAL_TIMEOUT;
+		//##-3- Put UART peripheral in reception process ########################### 
+		if(HAL_UART_Receive(&huart, aRxBuffer, RXBUFFERSIZE, 2000) == HAL_OK)
+		{  
+			printf("waddup\n");
+		}
+		printf("receive\n");
+		printf("r:%d\n", aRxBuffer[0]);
+		printf("r0:%d\n", *aRxBuffer);
+		printf("r1:%d\n", aRxBuffer[RXBUFFERSIZE-1]);
+		j++;
+		aRxBuffer[0] = 0;
+		
+	}
+	
+	
+	while (1)
+	{
+		//i++;
+		//HAL_UART_Transmit(&huart, a, 15, 10);
+		HAL_Delay(100);
+		//vals = UART_Receive(&huart);
+		//vals2 = UART_Receive(&huart);
+		//vals3 = UART_Receive(&huart);
+//		printf("finish a loop\n");
+//		printf("Val[0]: %d\n", vals[0]);
+//		printf("Val[1]: %d\n", vals[1]);
+//		printf("Val[2]: %d\n", vals[2]);
+		
+	}
+//		printf("Val[0]: %d\n", vals[0]);
+//		printf("Val[1]: %d\n", vals[1]);
+//		printf("Val[2]: %d\n", vals[2]);
+//	printf("Val[0]: %d\n", vals2[0]);
+//		printf("Val[1]: %d\n", vals2[1]);
+//		printf("Val[2]: %d\n", vals2[2]);
+//	printf("Val[0]: %d\n", vals3[0]);
+//		printf("Val[1]: %d\n", vals3[1]);
+//		printf("Val[2]: %d\n", vals3[2]);
+//	
+//		printf("Loop num: %d\n", i);
+
+	receive();
+	
+	printf("x1 %d\n", pData_unfilt_x1[0]);
+	printf("x1 %d\n", pData_unfilt_x2[0]);
+	
   PRINTF("HWver %d, FWver %d", hwVersion, fwVersion);
 	PRINTF("\n\n");
   
