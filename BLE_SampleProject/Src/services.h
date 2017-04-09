@@ -94,6 +94,7 @@ typedef struct {
   i32_t AXIS_X;
   i32_t AXIS_Y;
   i32_t AXIS_Z;
+	i32_t AWS;
 } AxesRaw_t;
 /**
  * @}

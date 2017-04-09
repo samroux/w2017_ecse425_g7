@@ -82,7 +82,8 @@
 extern volatile uint8_t set_connectable;
 extern volatile int connected;
 extern AxesRaw_t axes_data;
-int counter;
+int counter_aws;
+int aws_write;
 uint8_t bnrg_expansion_board = IDB04A1; /* at startup, suppose the X-NUCLEO-IDB04A1 is used */
 /**
  * @}
@@ -247,19 +248,34 @@ int main(void)
   else
     PRINTF("Error while adding Sample service.\n");
 	
-//	ret = Add_W_Sample_Service();
-//	
-//	if(ret == BLE_STATUS_SUCCESS)
-//    PRINTF("Write Sample service added successfully.\n");
-//  else
-//    PRINTF("Error while adding Write Sample service.(0x%02x)\n", ret);
-//	
+	ret = Add_W_Sample_Service();
+	
+	if(ret == BLE_STATUS_SUCCESS)
+    PRINTF("Write Sample service added successfully.\n");
+  else
+    PRINTF("Error while adding Write Sample service.(0x%02x)\n", ret);
+	
 
   /* Set output power level */
   ret = aci_hal_set_tx_power_level(1,4);
-
+	
+	counter_aws = 1;
+	aws_write = 0;
+	
+	
   while(1)
   {
+		
+		if (counter_aws % 500 < 450 || counter_aws % 500 > 490 ){
+			aws_write = 0;
+		}else{
+			aws_write = 1;
+		}
+		if (counter_aws % 500 == 0){
+			printf ("exiting..");
+			break;
+		}
+		
     HCI_Process();
     User_Process(&axes_data);
   }
@@ -280,35 +296,26 @@ void User_Process(AxesRaw_t* p_axes)
   } 
 
 	if (connected){
-		Sample_Characteristic_Update (10);
-		//WSample_Characteristic_Read ();
 		
-		//printf("COUNTER: %d\n", counter );
-		 /* Update acceleration data */
+
+		//counter_aws +=1;
+		
+		/*Prototyping here..*/
+//		uint8_t value;
+//		value = 10;
+		//Sample_Characteristic_Update (value);
+		//WSample_Characteristic_Read ();
+		/*----*/
+		
+		/* Update acceleration data */
+		//TODO need to get those values from UART
 		p_axes->AXIS_X = 1;
 		p_axes->AXIS_Y = 10;
 		p_axes->AXIS_Z = 200;
+		p_axes->AWS = aws_write;
 		//PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
 		//Acc_Update(p_axes);
 	}
-
-  /* Check if the user has pushed the button */
-//  if(BSP_PB_GetState(BUTTON_KEY) == RESET)
-//  {
-//    while (BSP_PB_GetState(BUTTON_KEY) == RESET);
-//    
-//    //BSP_LED_Toggle(LED2); //used for debugging (BSP_LED_Init() above must be also enabled)
-//    
-//    if(connected)
-//    {
-//      /* Update acceleration data */
-//      p_axes->AXIS_X += 1;
-//      p_axes->AXIS_Y -= 1;
-//      p_axes->AXIS_Z += 2;
-//      //PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
-//      Acc_Update(p_axes);
-//    }
-//  }
 }
 
 /**
