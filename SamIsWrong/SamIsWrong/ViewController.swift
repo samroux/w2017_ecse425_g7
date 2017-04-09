@@ -17,6 +17,8 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     
     var manager : CBCentralManager! // connect
     var peripheral : CBPeripheral! // interact
+   
+    var awsFileManager: AWSUserFileManager!
     
     var BEAN_NAME : String!
     var BEAN_SCRATCH_UUID  : CBUUID!
@@ -63,6 +65,8 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     var writeToFile = false
     var contentsToWrite : String!
     
+    var prefix : String!
+    var marker : String!
     
     
     @IBOutlet weak var scanLabel: UILabel!
@@ -79,7 +83,7 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         setupBluetooth()
         setBackgroundColor()
         setupScanButton()
-
+        loadContents()
         timer = Timer.scheduledTimer(timeInterval: 3.0, target: self, selector: #selector(animateButton), userInfo: nil, repeats: true)
     }
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -127,16 +131,15 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
             
             let thisCharacteristic = characteristic as CBCharacteristic
             if thisCharacteristic.uuid == WSAMPLE_CHAR_UUID {
-                print ("    Char: \(thisCharacteristic.uuid.uuidString)")
-                print (thisCharacteristic.properties.contains(.write))
+                if characteristic.uuid == WSAMPLE_CHAR_UUID {
+                    var randomValue : UInt8 = 9
+                    let dataToWrite = Data(bytes: &randomValue, count: MemoryLayout<UInt8>.size)
+                    peripheral.writeValue(dataToWrite, for: characteristic, type: .withResponse)
+                }
             }
             else{
                 print("else")
             }
-//            print ("    Char: \(thisCharacteristic.uuid.uuidString)")
-//            //print (thisCharacteristic.properties.contains(.write))
-          
-            
             self.peripheral.setNotifyValue(
                 true,
                 for: thisCharacteristic
@@ -305,7 +308,7 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         
     }
     func writeToPeripheral(){
-//        for service 
+        //    for service
     }
     func setupScanButton(){
         let borderColor = UIColor(red: 0.41, green: 1.28, blue: 1.85, alpha: 0.0)
@@ -357,7 +360,44 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
                 }
         })
     }
-
+    
+    func loadContents(){
+        let uploadsDirectory = "/"
+        awsFileManager = AWSUserFileManager.defaultUserFileManager()
+        awsFileManager.listAvailableContents(withPrefix: prefix, marker: marker) {[weak self] (contents: [AWSContent]?, nextMarker: String?, error: Error?) in
+            guard let strongSelf = self else { return }
+            if let error = error {
+                print("Failed to load the list of contents. \(error)")
+            }
+            if let contents = contents, contents.count > 0 {
+                for content in contents{
+                    if content.key == "readings.csv"{
+                        self?.downloadContent(content: content, pinOnCompletion: false)
+                    }
+                }
+            }
+        }
+    }
+    
+   private func downloadContent(content: AWSContent, pinOnCompletion: Bool) {
+    
+    content.download(with: .always, pinOnCompletion: pinOnCompletion, progressBlock: {[weak self] (content: AWSContent, progress: Progress) in
+        return
+        
+    }) {[weak self] (content: AWSContent?, data: Data?, error: Error?) in
+        guard let strongSelf = self else { return }
+        if let error = error {
+            print("Failed to download a content from a server. \(error)")
+           
+        }else{
+           
+            let testString = String(data: data!, encoding: String.Encoding.utf8)
+            print(testString!)
+            
+        }
+    }
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
