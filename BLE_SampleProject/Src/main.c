@@ -47,6 +47,7 @@
 #include "debug.h"
 #include "stm32_bluenrg_ble.h"
 #include "bluenrg_utils.h"
+#include "stm32f4xx_hal.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -85,9 +86,16 @@ extern AxesRaw_t axes_data;
 int counter_aws;
 int aws_write;
 uint8_t bnrg_expansion_board = IDB04A1; /* at startup, suppose the X-NUCLEO-IDB04A1 is used */
+GPIO_InitTypeDef uart_GPIO_struct;
+GPIO_InitTypeDef LED_GPIO_struct;
+UART_HandleTypeDef uart_handle_struct;
+UART_InitTypeDef uart_init_struct;
 /**
  * @}
  */
+
+
+
 
 /** @defgroup MAIN_Private_Function_Prototypes
  * @{
@@ -97,6 +105,38 @@ void User_Process(AxesRaw_t* p_axes);
 /**
  * @}
  */
+ 
+ void UART_init(){	
+	// Enable clocks
+	__HAL_RCC_USART1_CLK_ENABLE();
+	
+	// Configure UART
+	uart_init_struct.BaudRate = 115200;
+	uart_init_struct.HwFlowCtl = UART_HWCONTROL_NONE; //////
+	uart_init_struct.Mode = USART_MODE_TX_RX;
+	uart_init_struct.OverSampling = UART_OVERSAMPLING_16; //////
+	uart_init_struct.Parity = USART_PARITY_NONE; 
+	uart_init_struct.StopBits = USART_STOPBITS_1; 
+	uart_init_struct.WordLength = USART_WORDLENGTH_8B; 
+	
+	uart_handle_struct.Init = uart_init_struct;
+	uart_handle_struct.Instance = USART1;
+	
+	HAL_UART_Init(&uart_handle_struct);
+}
+
+void uart_GPIO_init(){
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+
+	// Configure GPIOs
+	uart_GPIO_struct.Alternate = GPIO_AF7_USART1;
+	uart_GPIO_struct.Mode = GPIO_MODE_AF_PP;
+	uart_GPIO_struct.Pin = GPIO_PIN_9 | GPIO_PIN_10; // TX: PA2, RX: PA3 
+	uart_GPIO_struct.Pull = GPIO_PULLUP;
+	uart_GPIO_struct.Speed = GPIO_SPEED_FREQ_HIGH;
+	
+	HAL_GPIO_Init(GPIOA,&uart_GPIO_struct);
+}
 
 /**
  * @brief  Main function to show how to use the BlueNRG Bluetooth Low Energy
@@ -170,6 +210,17 @@ int main(void)
    * command after reset otherwise it will fail.
    */
   BlueNRG_RST();
+	
+	UART_init();
+	uart_GPIO_init();
+	uint8_t data_R[4];
+	
+	
+	
+	while(1)
+  {	
+		HAL_UART_Receive(&uart_handle_struct, data_R, 4, 1000);
+	}
   
   PRINTF("HWver %d, FWver %d", hwVersion, fwVersion);
 	PRINTF("\n\n");
