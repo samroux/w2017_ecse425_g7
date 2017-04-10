@@ -145,14 +145,8 @@ tBleStatus Add_W_Sample_Service(void)
   
   COPY_W_SAMPLE_CHAR_UUID(uuid);
 	//Adding Characteristics 
-//  ret =  aci_gatt_add_char(wsampleServHandle, UUID_TYPE_128, uuid, 1,
-//                           CHAR_PROP_WRITE|CHAR_PROP_NOTIFY,
-//                           ATTR_PERMISSION_NONE,
-//                           GATT_NOTIFY_WRITE_REQ_AND_WAIT_FOR_APPL_RESP,
-//                           16, 0, &wsampleCharHandle);
-	
-	ret =  aci_gatt_add_char(wsampleServHandle, UUID_TYPE_128, uuid, 1,
-                           CHAR_PROP_WRITE | CHAR_PROP_WRITE_WITHOUT_RESP | CHAR_PROP_NOTIFY,
+  ret =  aci_gatt_add_char(wsampleServHandle, UUID_TYPE_128, uuid, 1,
+                           CHAR_PROP_WRITE|CHAR_PROP_NOTIFY,
                            ATTR_PERMISSION_NONE,
                            GATT_NOTIFY_ATTRIBUTE_WRITE,
                            16, 0, &wsampleCharHandle);
@@ -546,12 +540,15 @@ void Read_Request_CB(uint16_t handle)
  */
 void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_data)
 {
-  /* If GATT client has modified characteristic value, read values */
-  if(handle == wsampleCharHandle + 1){ 
-			printf("new value of wsampleChar\n");
-			WSample_Characteristic_Read ();
-      //BSP_LED_Toggle(LED2);
-  }
+	/* If GATT client has modified characteristic value, read values */
+	if(handle == wsampleCharHandle + 1){ 
+		printf("new value of wsampleChar\n");
+		///WSample_Characteristic_Read ();
+		uint8_t temp;
+		memcpy(&temp, att_data, data_length);
+		printf("P: %02x\n", temp);
+		//BSP_LED_Toggle(LED2);
+	}
 }
 
 /**
@@ -585,6 +582,7 @@ void HCI_Event_CB(void *pckt)
   hci_uart_pckt *hci_pckt = pckt;
   /* obtain event packet */
   hci_event_pckt *event_pckt = (hci_event_pckt*)hci_pckt->data;
+	//PRINTF("HCI_EVENT_CB %d\n", event_pckt->evt);
   
   if(hci_pckt->type != HCI_EVENT_PKT)
     return;
@@ -690,6 +688,13 @@ void HCI_Event_CB(void *pckt)
 					evt_att_find_by_type_val_resp *evt = (evt_att_find_by_type_val_resp*)blue_evt->data;
 				}
 				break;
+				
+			case EVT_BLUE_GATT_ERROR_RESP:
+				{
+					evt_gatt_error_resp *evt = (evt_gatt_error_resp*)blue_evt->data;
+					PRINTF("EVT_BLUE_GATT_ERROR_RESP error_code=%d, req=%d\n\r", evt->error_code, evt -> req_opcode);
+					
+				}
 
       }
     }

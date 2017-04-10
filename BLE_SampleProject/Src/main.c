@@ -181,7 +181,7 @@ int main(void)
      * if different boards have the same MAC address, Android
      * applications unless you restart Bluetooth on tablet/phone
      */
-    SERVER_BDADDR[5] = 0x69;
+    SERVER_BDADDR[5] = 0x11;
   }
 
   /* The Nucleo board must be configured as SERVER */
