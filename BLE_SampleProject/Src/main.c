@@ -215,12 +215,6 @@ int main(void)
 	uart_GPIO_init();
 	uint8_t data_R[4];
 	
-	
-	
-	while(1)
-  {	
-		HAL_UART_Receive(&uart_handle_struct, data_R, 4, 1000);
-	}
   
   PRINTF("HWver %d, FWver %d", hwVersion, fwVersion);
 	PRINTF("\n\n");
@@ -323,6 +317,9 @@ int main(void)
 	
   while(1)
   {
+		//TODO: Chris don't know where to put this.
+		HAL_UART_Receive(&uart_handle_struct, data_R, 4, 1000);
+
 		
 		if (counter_aws % 500 < 450 || counter_aws % 500 > 490 ){
 			aws_write = 0;
@@ -356,7 +353,7 @@ void User_Process(AxesRaw_t* p_axes)
 	if (connected){
 	
 		//this counter is used to simulate button
-		//counter_aws +=1;
+		counter_aws +=1;
 		
 		/* Update acceleration data */
 		//TODO need to get those values from UART
@@ -366,7 +363,7 @@ void User_Process(AxesRaw_t* p_axes)
 		
 		p_axes->AWS = aws_write;	//this must be set to one when UART is sending data
 		//PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
-		//Acc_Update(p_axes);
+		Acc_Update(p_axes);
 	}
 }
 
