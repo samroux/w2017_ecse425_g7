@@ -61,12 +61,24 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     var currentY = 0
     var currentZ = 0
     
+    var xValues = [Int]()
+    var yValues = [Int]()
+    var zValues = [Int]()
+    
+    var filteredXValues = [Int]()
+    var filteredYValues = [Int]()
+    var filteredZValues = [Int]()
+    
+    
+    
     
     var writeToFile = false
     var contentsToWrite : String!
     
+    
     var prefix : String!
     var marker : String!
+    var downloadedData : String!
     
     
     @IBOutlet weak var scanLabel: UILabel!
@@ -168,7 +180,6 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         }
     }
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        //print ("didWriteValueFor")
         var randomValue : UInt8 = 9
         let dataToWrite = Data(bytes: &randomValue, count: MemoryLayout<UInt8>.size)
         peripheral.writeValue(dataToWrite, for: characteristic, type: .withResponse)
@@ -209,7 +220,10 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
             }else if characteristic.uuid == ACC_CHAR_AWS_UUID{
                 if value == 1  && writeToFile == true  {
                     print("Writing")
-                    contentsToWrite.append("\(currentX),\(currentY),\(currentZ)\n")
+                    xValues.append(currentX)
+                    yValues.append(currentY)
+                    zValues.append(currentZ)
+                    //contentsToWrite.append("\(currentX),\(currentY),\(currentZ)\n")
                 }
                 else if value == 0 && writeToFile == true  {
                     print("stopped writing")
@@ -239,9 +253,9 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
             charname = "Undefined"
         }
         
-        if writeToFile{
-            contentsToWrite.append("\(currentX),\(currentY),\(currentZ)\n")
-        }
+//        if writeToFile{
+//            contentsToWrite.append("\(currentX),\(currentY),\(currentZ)\n")
+//        }
     }
     func setupBluetooth(){
         BEAN_NAME  = "SPICY"
@@ -319,7 +333,10 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     }
     func uploadToAWS(){
         do {
-            //try contentsToWrite.write(to: path as URL, atomically: true, encoding: String.Encoding.utf8)
+            for i in 0..<filteredXValues.count{
+                contentsToWrite.append("\(filteredXValues[i]),\(filteredYValues[i]),\(filteredZValues[i])\n")
+            }
+            try contentsToWrite.write(to: path as URL, atomically: true, encoding: String.Encoding.utf8)
             let data  = contentsToWrite.data(using: String.Encoding.utf8)
             uploadWithData(data: data!, forKey: "readings.csv")
             
@@ -341,6 +358,29 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
     func createFile(){
         path = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(self.fileName)! as NSURL
         contentsToWrite = "X,Y,Z\n"
+    }
+    func applyFilter(){
+        for i in 0..<(xValues.count-4){
+            let num1 = 0.25*Double(xValues[i])
+            let num2 = 0.25*Double(xValues[i+1])
+            let num3 = 0.25*Double(xValues[i+2])
+            let num4 = 0.25*Double(xValues[i+3])
+            filteredXValues.append(Int(num1+num2+num3+num4))
+        }
+        for i in 0..<(yValues.count-4){
+            let num1 = 0.25*Double(yValues[i])
+            let num2 = 0.25*Double(yValues[i+1])
+            let num3 = 0.25*Double(yValues[i+2])
+            let num4 = 0.25*Double(yValues[i+3])
+            filteredYValues.append(Int(num1+num2+num3+num4))
+        }
+        for i in 0..<(zValues.count-4){
+            let num1 = 0.25*Double(zValues[i])
+            let num2 = 0.25*Double(zValues[i+1])
+            let num3 = 0.25*Double(zValues[i+2])
+            let num4 = 0.25*Double(zValues[i+3])
+            filteredZValues.append(Int(num1+num2+num3+num4))
+        }
     }
     private func uploadWithData(data: Data, forKey key: String) {
         let manager = AWSUserFileManager.defaultUserFileManager()
@@ -391,9 +431,8 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
            
         }else{
            
-            let testString = String(data: data!, encoding: String.Encoding.utf8)
-            print(testString!)
-            
+            let downloadedReadings = String(data: data!, encoding: String.Encoding.utf8)
+            print(downloadedReadings!)
         }
     }
     }
