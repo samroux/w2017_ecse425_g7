@@ -12,7 +12,7 @@ uint16_t sampleServHandle, sampleCharHandle;
 uint16_t wsampleServHandle, wsampleCharHandle;
 uint16_t accServHandle, accCharHandle, acc_x_CharHandle, acc_y_CharHandle, acc_z_CharHandle, acc_aws_CharHandle;
 uint16_t buttonServHandle, buttonCharHandle;
-uint16_t pdataServHandle, pdataCharHandle;
+uint16_t pdataServHandle, pdataCharHandle, p_x_CharHandle, p_y_CharHandle, p_z_CharHandle;
 
 extern uint8_t bnrg_expansion_board;
 
@@ -30,24 +30,18 @@ do {\
 #define COPY_SAMPLE_CHAR_UUID(uuid_struct)				COPY_UUID_128(uuid_struct,0xe2,0x3e,0x78,0xa0, 0xcf,0x4a, 0x11,0xe1, 0x8f,0xfc, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 
 #define COPY_ACC_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x03,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-//#define COPY_ACC_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe3,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_ACC_X_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe4,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_ACC_Y_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe5,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_ACC_Z_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe6,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_ACC_AWS_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf3,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 
-
-#define COPY_BUTTON_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x04,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-#define COPY_BUTTON_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe7,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-
 #define COPY_W_SAMPLE_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x05,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_W_SAMPLE_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe8,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 
-//#define COPY_PDATA_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x06,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-//#define COPY_PDATA_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe9,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-//#define COPY_PDATA_X_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf0,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-//#define COPY_PDATA_Y_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf1,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-//#define COPY_PDATA_Z_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf2,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+#define COPY_PDATA_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x06,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+#define COPY_PDATA_X_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf0,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+#define COPY_PDATA_Y_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf1,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+#define COPY_PDATA_Z_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf2,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 
 
 
@@ -56,72 +50,6 @@ do {\
 #define STORE_LE_16(buf, val)    ( ((buf)[0] =  (uint8_t) (val)    ) , \
                                    ((buf)[1] =  (uint8_t) (val>>8) ) )
 
-/**
- * @brief  Add a Sample service using a vendor specific profile.
- *
- * @param  None
- * @retval tBleStatus Status
- */
-tBleStatus Add_Sample_Service(void)
-{
-  tBleStatus ret;
-
-  uint8_t uuid[16];
-  
-  COPY_SAMPLE_SERVICE_UUID(uuid);
-	//Adding Service 
-  ret = aci_gatt_add_serv(UUID_TYPE_128, uuid, PRIMARY_SERVICE, 33, &sampleServHandle);
-  if (ret != BLE_STATUS_SUCCESS) goto fail;    
-  
-  COPY_SAMPLE_CHAR_UUID(uuid);
-	//Adding Characteristics 
-  ret =  aci_gatt_add_char(sampleServHandle, UUID_TYPE_128, uuid, 1,
-                           CHAR_PROP_NOTIFY|CHAR_PROP_READ,
-                           ATTR_PERMISSION_NONE,
-                           GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
-                           16, 0, &sampleCharHandle);
-  if (ret != BLE_STATUS_SUCCESS) goto fail;
-  
-  PRINTF("Sample Service Added. Handle 0x%04X, Sample Characteristic Handle: 0x%04X\n",sampleServHandle, sampleCharHandle);	
-  return BLE_STATUS_SUCCESS; 
-  
-fail:
-  PRINTF("Error while adding Sample Service.\n");
-  return BLE_STATUS_ERROR ;
-    
-}
-
-/**
- * @brief  Update sample characteristic value.
- *
- * @param  Value to write in the characteristic
- * @retval Status
- */
-tBleStatus Sample_Characteristic_Update(uint8_t value)
-{  
-  tBleStatus ret;
-	uint8_t buf[0];
-	//buf[0] = value;
-	STORE_LE_16(buf, value);
-	
-  ret = aci_gatt_update_char_value(sampleServHandle, sampleCharHandle, 0, 1, buf);
-	
-	/*
-	0x00: Success
-	0x47: Error
-	0x60: Invalid handle
-	0x61: Invalid parameter
-	0x64: Insufficient resources
-	*/
-	
-  if (ret != BLE_STATUS_SUCCESS){
-    PRINTF("Error while updating sample characteristic.(0x%02x)\n", ret) ;
-    return BLE_STATUS_ERROR ;
-  }
-	
-	printf ("Sample Success Update\n");
-  return BLE_STATUS_SUCCESS;	
-}
 
 /**
  * @brief  Add a Write Sample service using a vendor specific profile.
@@ -165,43 +93,6 @@ fail:
   return BLE_STATUS_ERROR ;
     
 }
-
-/**
- * @brief  Update write sample characteristic value.
- *
- * @param  Value to write in the characteristic
- * @retval Status
- */
-tBleStatus WSample_Characteristic_Read(void)
-{  
-  tBleStatus ret;
-	uint8_t buf;
-	uint16_t data_len_out_p = 10;
-	
-  //ret = aci_gatt_read_handle_value(wsampleCharHandle, 10, &data_len_out_p, &buf);
-	
-	ret = aci_gatt_read_charac_val (connection_handle, wsampleCharHandle);
-	
-	/*
-	0x00: Success
-	0x47: Error
-	0x60: Invalid handle
-	0x61: Invalid parameter
-	0x64: Insufficient resources
-	*/
-	
-  if (ret != BLE_STATUS_SUCCESS){
-    PRINTF("Error while updating Read Sample characteristic.(0x%02x)\n", ret) ;
-    return BLE_STATUS_ERROR ;
-  }
-	
-	printf ("Sample Read Success(0x%02x)\n", ret);
-	
-	//printf ("Read Value: %d\n", buf);
-	
-  return BLE_STATUS_SUCCESS;	
-}
-
 
 /**
  * @brief  Add an accelerometer service using a vendor specific profile.
@@ -324,66 +215,6 @@ tBleStatus Acc_Update(AxesRaw_t *data)
 
 
 /**
- * @brief  Add an button service using a vendor specific profile.
- *
- * @param  None
- * @retval tBleStatus Status
- */
-
-tBleStatus Add_Button_Service(void)
-{
-  tBleStatus ret;
-
-  uint8_t uuid[16];
-  
-  COPY_BUTTON_SERVICE_UUID(uuid);
-	//Adding Service 
-  ret = aci_gatt_add_serv(UUID_TYPE_128, uuid, PRIMARY_SERVICE, 7, &buttonServHandle);
-  if (ret != BLE_STATUS_SUCCESS) goto fail;    
-  
-  COPY_BUTTON_CHAR_UUID(uuid);
-	//Adding Characteristics 
-  ret =  aci_gatt_add_char(buttonServHandle, UUID_TYPE_128, uuid, 1,
-                           CHAR_PROP_NOTIFY,
-                           ATTR_PERMISSION_NONE,
-                           GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
-                           16, 0, &buttonCharHandle);
-  if (ret != BLE_STATUS_SUCCESS) goto fail;
-  
-  PRINTF("Button Service Added. Handle 0x%04X, Button Characteristic Handle: 0x%04X\n",buttonServHandle, buttonCharHandle);	
-  return BLE_STATUS_SUCCESS; 
-  
-fail:
-  PRINTF("Error while adding Button Service.\n");
-  return BLE_STATUS_ERROR ;
-    
-}
-
-/**
- * @brief  Update button characteristic value.
- *
- * @param  Value to write in the characteristic
- * @retval Status
- */
-tBleStatus Button_Characteristic_Update(uint8_t value)
-{  
-  tBleStatus ret;
-	uint8_t buf[0];
-	//buf[0] = value;
-	buf[0] = 10;
-	
-  ret = aci_gatt_update_char_value(buttonServHandle, buttonCharHandle, 0, 1, buf);
-	
-  if (ret != BLE_STATUS_SUCCESS){
-    PRINTF("Error while updating button characteristic.(0x%02x)\n", ret) ;
-    return BLE_STATUS_ERROR ;
-  }
-	
-	printf ("Button Success Update\n");
-  return BLE_STATUS_SUCCESS;	
-}
-
-/**
  * @brief  Add an ProcessedData (PData) service using a vendor specific profile.
  *
  * @param  None
@@ -396,18 +227,18 @@ tBleStatus Add_PData_Service(void)
 
   uint8_t uuid[16];
   
-  COPY_BUTTON_SERVICE_UUID(uuid);
+  COPY_PDATA_SERVICE_UUID(uuid);
 	//Adding Service 
   ret = aci_gatt_add_serv(UUID_TYPE_128, uuid, PRIMARY_SERVICE, 7, &pdataServHandle);
   if (ret != BLE_STATUS_SUCCESS) goto fail;    
   
-  COPY_BUTTON_CHAR_UUID(uuid);
+  COPY_PDATA_X_CHAR_UUID(uuid);
 	//Adding Characteristics 
-  ret =  aci_gatt_add_char(buttonServHandle, UUID_TYPE_128, uuid, 1,
+  ret =  aci_gatt_add_char(pdataServHandle, UUID_TYPE_128, uuid, 1,
                            CHAR_PROP_WRITE,
                            ATTR_PERMISSION_NONE,
                            GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
-                           16, 0, &pdataCharHandle);
+                           16, 0, &p_x_CharHandle);
   if (ret != BLE_STATUS_SUCCESS) goto fail;
   
   PRINTF("PData Service Added. Handle 0x%04X, PData Characteristic Handle: 0x%04X\n",pdataServHandle, pdataCharHandle);	
@@ -521,7 +352,7 @@ void GAP_DisconnectionComplete_CB(void)
 void Read_Request_CB(uint16_t handle)
 {  
   if(handle == sampleCharHandle + 1){
-		Sample_Characteristic_Update(sample_char_value);
+		//Sample_Characteristic_Update(sample_char_value);
 		PRINTF("Reading Sample Characteristic\n");
 	}  
   
@@ -548,7 +379,8 @@ void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_da
 		memcpy(&temp, att_data, data_length);
 		printf("P: %02x\n", temp);
 		//BSP_LED_Toggle(LED2);
-	}
+	}else if (handle == wsampleCharHandle + 1){}
+		
 }
 
 /**
@@ -645,55 +477,10 @@ void HCI_Event_CB(void *pckt)
           Read_Request_CB(pr->attr_handle);                    
         }
         break;
-			case EVT_BLUE_ATT_READ_BY_GROUP_TYPE_RESP:
-				{
-					PRINTF("EVT_BLUE_ATT_READ_BY_GROUP_TYPE_RESP\n\r");
-					evt_att_read_by_group_resp *evt = (evt_att_read_by_group_resp*)blue_evt->data;
-				}
-				break;
-			case EVT_BLUE_ATT_READ_BY_TYPE_RESP:
-				{
-					PRINTF("EVT_BLUE_ATT_READ_BY_TYPE_RESP\n\r");
-					evt_att_read_by_type_resp *evt = (evt_att_read_by_type_resp*)blue_evt->data;
-				}
-				break;
-			case EVT_BLUE_ATT_READ_RESP:
-				{
-					PRINTF("EVT_BLUE_ATT_READ_RESP\n\r");
-					evt_att_read_resp *evt = (evt_att_read_resp*)blue_evt->data;
-					Char_By_UUID_Rep (evt -> attribute_value);
-				}
-				break;
-			case EVT_BLUE_ATT_EXEC_WRITE_RESP:
-				{
-					PRINTF("EVT_BLUE_ATT_EXEC_WRITE_RESP\n\r");
-					evt_att_prepare_write_resp *evt = (evt_att_prepare_write_resp*)blue_evt->data;
-				}
-				break;
-			case EVT_BLUE_ATT_PREPARE_WRITE_RESP:
-				{
-					PRINTF("EVT_BLUE_ATT_PREPARE_WRITE_RESP\n\r");
-					evt_att_prepare_write_resp *evt = (evt_att_prepare_write_resp*)blue_evt->data;
-				}
-				break;
-			case EVT_BLUE_GATT_DISC_READ_CHAR_BY_UUID_RESP:
-				{
-					PRINTF("EVT_BLUE_GATT_DISC_READ_CHAR_BY_UUID_RESP\n\r");
-					evt_gatt_disc_read_char_by_uuid_resp *evt = (evt_gatt_disc_read_char_by_uuid_resp*)blue_evt->data;
-				}
-				break;
-			case EVT_BLUE_ATT_FIND_BY_TYPE_VAL_RESP:
-				{
-					PRINTF("EVT_BLUE_ATT_FIND_BY_TYPE_VAL_RESP\n\r");
-					evt_att_find_by_type_val_resp *evt = (evt_att_find_by_type_val_resp*)blue_evt->data;
-				}
-				break;
-				
 			case EVT_BLUE_GATT_ERROR_RESP:
 				{
 					evt_gatt_error_resp *evt = (evt_gatt_error_resp*)blue_evt->data;
 					PRINTF("EVT_BLUE_GATT_ERROR_RESP error_code=%d, req=%d\n\r", evt->error_code, evt -> req_opcode);
-					
 				}
 
       }

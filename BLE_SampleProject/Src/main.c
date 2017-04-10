@@ -241,12 +241,12 @@ int main(void)
   else
     PRINTF("Error while adding Acc service.\n");
 	
-	ret = Add_Sample_Service();
-	
-	if(ret == BLE_STATUS_SUCCESS)
-    PRINTF("Sample service added successfully.\n");
-  else
-    PRINTF("Error while adding Sample service.\n");
+//	ret = Add_Sample_Service();
+//	
+//	if(ret == BLE_STATUS_SUCCESS)
+//    PRINTF("Sample service added successfully.\n");
+//  else
+//    PRINTF("Error while adding Sample service.\n");
 	
 	ret = Add_W_Sample_Service();
 	
@@ -314,7 +314,7 @@ void User_Process(AxesRaw_t* p_axes)
 		p_axes->AXIS_Z = 200;
 		p_axes->AWS = aws_write;
 		//PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
-		//Acc_Update(p_axes);
+		Acc_Update(p_axes);
 	}
 }
 
