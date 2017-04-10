@@ -124,7 +124,7 @@ void User_Process(AxesRaw_t* p_axes);
 int main(void)
 {
   const char *name = "SPICY";
-  uint8_t SERVER_BDADDR[] = {0x12, 0x34, 0x00, 0xE1, 0x80, 0x03};
+  uint8_t SERVER_BDADDR[] = {0x12, 0x34, 0x00, 0xE1, 0x80, 0x10};
   uint8_t bdaddr[BDADDR_SIZE];
   uint16_t service_handle, dev_name_char_handle, appearance_char_handle;
   
@@ -248,13 +248,20 @@ int main(void)
 //  else
 //    PRINTF("Error while adding Sample service.\n");
 	
-	ret = Add_W_Sample_Service();
+//		ret = Add_W_Sample_Service();
+//	
+//	if(ret == BLE_STATUS_SUCCESS)
+//    PRINTF("Write Sample service added successfully.\n");
+//  else
+//    PRINTF("Error while adding Write Sample service.(0x%02x)\n", ret);
+	
+	
+	ret = Add_PData_Service();
 	
 	if(ret == BLE_STATUS_SUCCESS)
-    PRINTF("Write Sample service added successfully.\n");
+    PRINTF("Write PData service added successfully.\n");
   else
-    PRINTF("Error while adding Write Sample service.(0x%02x)\n", ret);
-	
+    PRINTF("Error while adding PData service.(0x%02x)\n", ret);
 
   /* Set output power level */
   ret = aci_hal_set_tx_power_level(1,4);
@@ -296,25 +303,19 @@ void User_Process(AxesRaw_t* p_axes)
   } 
 
 	if (connected){
-		
-
+	
+		//this counter is used to simulate button
 		//counter_aws +=1;
-		
-		/*Prototyping here..*/
-//		uint8_t value;
-//		value = 10;
-		//Sample_Characteristic_Update (value);
-		//WSample_Characteristic_Read ();
-		/*----*/
 		
 		/* Update acceleration data */
 		//TODO need to get those values from UART
 		p_axes->AXIS_X = 1;
 		p_axes->AXIS_Y = 10;
 		p_axes->AXIS_Z = 200;
-		p_axes->AWS = aws_write;
+		
+		p_axes->AWS = aws_write;	//this must be set to one when UART is sending data
 		//PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
-		Acc_Update(p_axes);
+		//Acc_Update(p_axes);
 	}
 }
 

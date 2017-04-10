@@ -26,9 +26,6 @@ do {\
 
 
 //UUID Definitions
-#define COPY_SAMPLE_SERVICE_UUID(uuid_struct)			COPY_UUID_128(uuid_struct,0x02,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-#define COPY_SAMPLE_CHAR_UUID(uuid_struct)				COPY_UUID_128(uuid_struct,0xe2,0x3e,0x78,0xa0, 0xcf,0x4a, 0x11,0xe1, 0x8f,0xfc, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-
 #define COPY_ACC_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x03,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_ACC_X_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe4,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_ACC_Y_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe5,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
@@ -42,8 +39,6 @@ do {\
 #define COPY_PDATA_X_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf0,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_PDATA_Y_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf1,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_PDATA_Z_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf2,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-
-
 
 
 /* Store Value into a buffer in Little Endian Format */
@@ -181,34 +176,34 @@ tBleStatus Acc_Update(AxesRaw_t *data)
 	ret = aci_gatt_update_char_value(accServHandle, acc_x_CharHandle, 0, 2, buff_x);
 	
   if (ret != BLE_STATUS_SUCCESS){
-    PRINTF("Error while updating ACC X characteristic.(0x%02x)\n", ret) ;
+    //PRINTF("Error while updating ACC X characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
-	printf ("Success ACC X Update\n");
+	//printf ("Success ACC X Update\n");
 	
 	ret = aci_gatt_update_char_value(accServHandle, acc_y_CharHandle, 0, 2, buff_y);
 	
   if (ret != BLE_STATUS_SUCCESS){
-    PRINTF("Error while updating ACC Y characteristic.(0x%02x)\n", ret) ;
+    //PRINTF("Error while updating ACC Y characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
-	printf ("Success ACC Y Update\n");
+	//printf ("Success ACC Y Update\n");
 	
 	ret = aci_gatt_update_char_value(accServHandle, acc_z_CharHandle, 0, 2, buff_z);
 	
   if (ret != BLE_STATUS_SUCCESS){
-    PRINTF("Error while updating ACC Z characteristic.(0x%02x)\n", ret) ;
+    //PRINTF("Error while updating ACC Z characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
-	printf ("Success ACC Z Update\n");
+	//printf ("Success ACC Z Update\n");
 	
 	ret = aci_gatt_update_char_value(accServHandle, acc_aws_CharHandle, 0, 2, buff_aws);
 	
   if (ret != BLE_STATUS_SUCCESS){
-    PRINTF("Error while updating ACC AWS characteristic.(0x%02x)\n", ret) ;
+    //PRINTF("Error while updating ACC AWS characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
-	printf ("Success ACC AWS Update\n");
+	//printf ("Success ACC AWS Update\n");
 	
   return BLE_STATUS_SUCCESS;	
 }
@@ -229,16 +224,32 @@ tBleStatus Add_PData_Service(void)
   
   COPY_PDATA_SERVICE_UUID(uuid);
 	//Adding Service 
-  ret = aci_gatt_add_serv(UUID_TYPE_128, uuid, PRIMARY_SERVICE, 7, &pdataServHandle);
+  ret = aci_gatt_add_serv(UUID_TYPE_128, uuid, PRIMARY_SERVICE, 16, &pdataServHandle);
   if (ret != BLE_STATUS_SUCCESS) goto fail;    
   
-  COPY_PDATA_X_CHAR_UUID(uuid);
 	//Adding Characteristics 
-  ret =  aci_gatt_add_char(pdataServHandle, UUID_TYPE_128, uuid, 1,
-                           CHAR_PROP_WRITE,
-                           ATTR_PERMISSION_NONE,
-                           GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
-                           16, 0, &p_x_CharHandle);
+  COPY_PDATA_X_CHAR_UUID(uuid);
+	ret =  aci_gatt_add_char(pdataServHandle, UUID_TYPE_128, uuid, 6,
+												 CHAR_PROP_WRITE|CHAR_PROP_NOTIFY,
+												 ATTR_PERMISSION_NONE,
+												 GATT_NOTIFY_ATTRIBUTE_WRITE,
+												 16, 0, &p_x_CharHandle);
+  if (ret != BLE_STATUS_SUCCESS) goto fail;
+	
+	COPY_PDATA_Y_CHAR_UUID(uuid);
+	ret =  aci_gatt_add_char(pdataServHandle, UUID_TYPE_128, uuid, 6,
+												 CHAR_PROP_WRITE|CHAR_PROP_NOTIFY,
+												 ATTR_PERMISSION_NONE,
+												 GATT_NOTIFY_ATTRIBUTE_WRITE,
+												 16, 0, &p_y_CharHandle);
+  if (ret != BLE_STATUS_SUCCESS) goto fail;
+	
+	COPY_PDATA_Z_CHAR_UUID(uuid);
+	ret =  aci_gatt_add_char(pdataServHandle, UUID_TYPE_128, uuid, 6,
+												 CHAR_PROP_WRITE|CHAR_PROP_NOTIFY,
+												 ATTR_PERMISSION_NONE,
+												 GATT_NOTIFY_ATTRIBUTE_WRITE,
+												 16, 0, &p_z_CharHandle);
   if (ret != BLE_STATUS_SUCCESS) goto fail;
   
   PRINTF("PData Service Added. Handle 0x%04X, PData Characteristic Handle: 0x%04X\n",pdataServHandle, pdataCharHandle);	
@@ -256,24 +267,7 @@ fail:
  * @param  Value to write in the characteristic
  * @retval Status
  */
-tBleStatus PData_Characteristic_read(void)
-{  
-//  tBleStatus ret;
-//	tBleStatus ret_value;
-//	uint8_t buf[0];
-//	//buf[0] = value;
-//	buf[0] = 10;
-//	
-//  ret = aci_gatt_update_char_value(pdataServHandle, buttonCharHandle, 0, 1, buf);
-//	
-//  if (ret != BLE_STATUS_SUCCESS){
-//    PRINTF("Error while updating button characteristic.(0x%02x)\n", ret) ;
-//    return BLE_STATUS_ERROR ;
-//  }
-//	
-//	printf ("Button Success Update\n");
-  return BLE_STATUS_SUCCESS;	
-}
+
 
 /**
  * @brief  Puts the device in connectable mode.
@@ -372,34 +366,20 @@ void Read_Request_CB(uint16_t handle)
 void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_data)
 {
 	/* If GATT client has modified characteristic value, read values */
+	uint8_t temp;
+	memcpy(&temp, att_data, data_length);
+	
+	//printf("P: %02x\n", temp);
 	if(handle == wsampleCharHandle + 1){ 
-		printf("new value of wsampleChar\n");
-		///WSample_Characteristic_Read ();
-		uint8_t temp;
-		memcpy(&temp, att_data, data_length);
-		printf("P: %02x\n", temp);
-		//BSP_LED_Toggle(LED2);
-	}else if (handle == wsampleCharHandle + 1){}
+			printf("SampleRead: %02x\n", temp);
+	}else if (handle == p_x_CharHandle + 1){
+			printf("X_Read: %02x\n", temp);
+	}else if (handle == p_y_CharHandle + 1){
+			printf("Y_Read: %02x\n", temp);
+	}else if (handle == p_z_CharHandle + 1){
+			printf("Z_Read: %02x\n", temp);
+	}
 		
-}
-
-/**
- * @brief  This function is called attribute value corresponding to 
- *         characteristic gets modified.
- * @param  Handle of the attribute
- * @param  Size of the modified attribute data
- * @param  Pointer to the modified attribute data
- * @retval None
- */
-void Char_By_UUID_Rep(uint8_t *att_data)
-{
-  /* If GATT client has modified characteristic value, read values */
-  //if(handle == wsampleCharHandle + 1){ 
-			printf("Reponse value of wsampleChar\n");
-			//WSample_Characteristic_Read ();
-      //BSP_LED_Toggle(LED2);
-		printf("Value: %d", &att_data);
-  //}
 }
 
 /**
@@ -445,7 +425,7 @@ void HCI_Event_CB(void *pckt)
   case EVT_VENDOR:
     {
       evt_blue_aci *blue_evt = (void*)event_pckt->data;
-			PRINTF("EVT_VENDOR %d\n", blue_evt->ecode);
+			//PRINTF("EVT_VENDOR %d\n", blue_evt->ecode);
       switch(blue_evt->ecode){
 				
 			case EVT_BLUE_GATT_ATTRIBUTE_MODIFIED:         
