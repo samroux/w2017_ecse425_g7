@@ -178,15 +178,15 @@ tBleStatus Acc_Update(AxesRaw_t *data)
 	ret = aci_gatt_update_char_value(accServHandle, acc_x_CharHandle, 0, 2, buff_x);
 	
   if (ret != BLE_STATUS_SUCCESS){
-    //PRINTF("Error while updating ACC X characteristic.(0x%02x)\n", ret) ;
+    PRINTF("Error while updating ACC X characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
-	printf ("Success ACC X Update\n");
+	printf ("Success ACC X Update: %d\n",data->AXIS_X );
 	
 	ret = aci_gatt_update_char_value(accServHandle, acc_y_CharHandle, 0, 2, buff_y);
 	
   if (ret != BLE_STATUS_SUCCESS){
-    //PRINTF("Error while updating ACC Y characteristic.(0x%02x)\n", ret) ;
+    PRINTF("Error while updating ACC Y characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
 	printf ("Success ACC Y Update\n");
@@ -194,7 +194,7 @@ tBleStatus Acc_Update(AxesRaw_t *data)
 	ret = aci_gatt_update_char_value(accServHandle, acc_z_CharHandle, 0, 2, buff_z);
 	
   if (ret != BLE_STATUS_SUCCESS){
-    //PRINTF("Error while updating ACC Z characteristic.(0x%02x)\n", ret) ;
+    PRINTF("Error while updating ACC Z characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
 	printf ("Success ACC Z Update\n");
@@ -202,7 +202,7 @@ tBleStatus Acc_Update(AxesRaw_t *data)
 	ret = aci_gatt_update_char_value(accServHandle, acc_aws_CharHandle, 0, 2, buff_aws);
 	
   if (ret != BLE_STATUS_SUCCESS){
-    //PRINTF("Error while updating ACC AWS characteristic.(0x%02x)\n", ret) ;
+    PRINTF("Error while updating ACC AWS characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
 	printf ("Success ACC AWS Update\n");
