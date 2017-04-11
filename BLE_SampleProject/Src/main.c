@@ -336,7 +336,6 @@ int main(void)
 //		{
 //			read_from_discovery++;
 //			printf("pin is 1\n");
-//			//TODO: Chris don't know where to put this.
 //			HAL_UART_Receive(&uart_handle_struct, data_R, RBUFFERSIZE_FROMDISOVERY, TIMEOUT);
 //			
 //			for(int j = 0; j < RBUFFERSIZE_FROMDISOVERY; j++)
@@ -347,9 +346,13 @@ int main(void)
 //					data_to_phone[j] = data_R[j];
 //				}
 //				//Copies the next 750 bytes
-//				else
+//				else if(read_from_discovery == 2)
 //				{
 //					data_to_phone[j*2] = data_R[j];
+//				}
+//				else
+//				{
+//					printf("Not supposed to be here");
 //				}
 //			}
 //		}
@@ -368,7 +371,8 @@ int main(void)
 //		}
 //		
 //		//Write to aws once we have received data twice (all the data from one round of sampling)
-//		if(read_from_discovery == 2)
+//		//Change read_from_discovery to 2 if we are reading all 1500 values
+//		if(read_from_discovery == 1)
 //		{
 //			//Not sure how to pass phone data, might be this
 //			aws_write = 1;
@@ -377,21 +381,21 @@ int main(void)
 //			aws_write = 0;
 //			User_Process(data_to_phone, &axes_data);
 //		}
-		/**{end} Using UART**/
-		
-		
-		/*{Start}Uncomment this section when not using UART (Testing)*/
-		if (counter_aws % 1000 < 800 || counter_aws % 1000 > 900 ){
-			aws_write = 0;
-		}else{
-			aws_write = 1;
-		}
-		
-		if (counter_aws % 1000 == 0){
-			printf ("exiting..");
-			break;
-		}
-		User_Process(data_to_phone, &axes_data);
+//		/**{end} Using UART**/
+//		
+//		
+//		/*{Start}Uncomment this section when not using UART (Testing)*/
+//		if (counter_aws % 1000 < 800 || counter_aws % 1000 > 900 ){
+//			aws_write = 0;
+//		}else{
+//			aws_write = 1;
+//		}
+//		
+//		if (counter_aws % 1000 == 0){
+//			printf ("exiting..");
+//			break;
+//		}
+//		User_Process(data_to_phone, &axes_data);
 		/*{end} not using UART*/
 		
     HCI_Process();
@@ -418,10 +422,9 @@ void User_Process(uint8_t* data_phone, AxesRaw_t* p_axes)
 		
 		//This puts one byte at a time into each axis
 		//Should probably change axis from int32 to uint8
-		//Unless bluetooth can handle full ints, then we can do conversion here
 		
 		/*{Start} Uncomment when using UART*/
-//		for(int j = 0; j < RBUFFERSIZE_FROMDISOVERY*2; j++)
+//		for(int j = 0; j < RBUFFERSIZE_FROMDISOVERY; j++)
 //		{
 //			if(j%6 == 0 || j%6 == 1)
 //			{
