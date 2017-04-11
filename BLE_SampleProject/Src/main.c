@@ -69,6 +69,7 @@
  */
 /* Private defines -----------------------------------------------------------*/
 #define BDADDR_SIZE 6
+#define RBUFFERSIZE 750
 
 /**
  * @}
@@ -87,7 +88,8 @@ int counter_aws;
 int aws_write;
 uint8_t bnrg_expansion_board = IDB04A1; /* at startup, suppose the X-NUCLEO-IDB04A1 is used */
 GPIO_InitTypeDef uart_GPIO_struct;
-GPIO_InitTypeDef LED_GPIO_struct;
+GPIO_InitTypeDef toggle_GPIO_struct;
+GPIO_InitTypeDef read_GPIO_struct;
 UART_HandleTypeDef uart_handle_struct;
 UART_InitTypeDef uart_init_struct;
 /**
@@ -127,7 +129,18 @@ void User_Process(AxesRaw_t* p_axes);
 
 void uart_GPIO_init(){
 	__HAL_RCC_GPIOA_CLK_ENABLE();
-
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+	
+	read_GPIO_struct.Mode = GPIO_MODE_INPUT;
+	read_GPIO_struct.Pin = GPIO_PIN_4; //Read Pin
+	read_GPIO_struct.Pull = GPIO_PULLUP;
+	HAL_GPIO_Init(GPIOB,&read_GPIO_struct);
+	
+	toggle_GPIO_struct.Mode = GPIO_MODE_OUTPUT_PP;
+	toggle_GPIO_struct.Pin = GPIO_PIN_5; //Writing pin
+	toggle_GPIO_struct.Pull = GPIO_PULLUP;
+	HAL_GPIO_Init(GPIOB,&toggle_GPIO_struct);
+	
 	// Configure GPIOs
 	uart_GPIO_struct.Alternate = GPIO_AF7_USART1;
 	uart_GPIO_struct.Mode = GPIO_MODE_AF_PP;
@@ -213,7 +226,6 @@ int main(void)
 	
 	UART_init();
 	uart_GPIO_init();
-	uint8_t data_R[4];
 	
   
   PRINTF("HWver %d, FWver %d", hwVersion, fwVersion);
@@ -314,12 +326,38 @@ int main(void)
 	counter_aws = 1;
 	aws_write = 0;
 	
+	uint8_t data_R[RBUFFERSIZE];
+	int i = 0;
+//	while(i < 100)
+//	{
+//		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+//		HAL_Delay(500);
+//		printf("pin is: %d\n", (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4)));
+//		i++;
+//	}
 	
   while(1)
   {
-		//TODO: Chris don't know where to put this.
-		HAL_UART_Receive(&uart_handle_struct, data_R, 4, 1000);
-
+		int read_from_discovery = 0;
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4))
+		{
+			read_from_discovery++;
+			printf("pin is 1\n");
+			//TODO: Chris don't know where to put this.
+			HAL_UART_Receive(&uart_handle_struct, data_R, RBUFFERSIZE, 1000);
+			
+			//TODO: Put data_R into a format Sam can use
+		
+			if(read_from_discovery == 2)
+			{
+				//Write to aws once we have received data twice (all the data from one round of sampling)
+				aws_write = 1;
+				read_from_discovery = 0;
+			}
+		}
+		
+		
 		
 		if (counter_aws % 500 < 450 || counter_aws % 500 > 490 ){
 			aws_write = 0;
