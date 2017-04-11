@@ -298,21 +298,6 @@ int main(void)
   else
     PRINTF("Error while adding Acc service.\n");
 	
-//	ret = Add_Sample_Service();
-//	
-//	if(ret == BLE_STATUS_SUCCESS)
-//    PRINTF("Sample service added successfully.\n");
-//  else
-//    PRINTF("Error while adding Sample service.\n");
-	
-//		ret = Add_W_Sample_Service();
-//	
-//	if(ret == BLE_STATUS_SUCCESS)
-//    PRINTF("Write Sample service added successfully.\n");
-//  else
-//    PRINTF("Error while adding Write Sample service.(0x%02x)\n", ret);
-	
-	
 	ret = Add_PData_Service();
 	
 	if(ret == BLE_STATUS_SUCCESS)
