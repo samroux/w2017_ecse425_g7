@@ -359,6 +359,15 @@ class ViewController: UIViewController, CBCentralManagerDelegate, CBPeripheralDe
         path = NSURL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(self.fileName)! as NSURL
         contentsToWrite = "X,Y,Z\n"
     }
+    
+    // The following functions get you pitch and rolls from the acc readings. 
+    func getPitch(x: Int, y: Int, z : Int) -> Int {
+        return Int(atan(Double(x)/sqrt(Double(y*y+z*z))) * (180/M_PI))
+    }
+    func getRoll(x: Int, y: Int, z : Int) -> Int {
+        return Int(atan(Double(y)/sqrt(Double(x*x+z*z))) * (180/M_PI))
+    }
+    // The following function applies an average filter with a moving window of 4 
     func applyFilter(){
         for i in 0..<(xValues.count-4){
             let num1 = 0.25*Double(xValues[i])
