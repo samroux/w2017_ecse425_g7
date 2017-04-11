@@ -70,6 +70,7 @@
 /* Private defines -----------------------------------------------------------*/
 #define BDADDR_SIZE 6
 #define RBUFFERSIZE 750
+#define TIMEOUT 1000
 
 /**
  * @}
@@ -322,16 +323,18 @@ int main(void)
 //		i++;
 //	}
 	
+	int read_from_discovery = 0;
+	//int write_to_discovery = 0;
   while(1)
   {
-		int read_from_discovery = 0;
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+		
+		//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
 		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4))
 		{
 			read_from_discovery++;
 			printf("pin is 1\n");
 			//TODO: Chris don't know where to put this.
-			HAL_UART_Receive(&uart_handle_struct, data_R, RBUFFERSIZE, 1000);
+			HAL_UART_Receive(&uart_handle_struct, data_R, RBUFFERSIZE, TIMEOUT);
 			
 			for(int j = 0; j < RBUFFERSIZE; j++)
 			{
@@ -346,6 +349,20 @@ int main(void)
 					data_to_phone[j*2] = data_R[j];
 				}
 			}
+		}
+		
+		
+		//When data_amount == 750, it means that we have received half the data from the phone
+		//Then we must transmit with UART
+		//Currently discovery board must know that it needs to receive twice
+		if (data_amount == RBUFFERSIZE)
+		{
+			//write_to_discovery++;
+			
+			//SET transmit pin
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
+			HAL_UART_Transmit(&uart_handle_struct, data_from_phone, RBUFFERSIZE, TIMEOUT);
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
 		}
 		
 		//Write to aws once we have received data twice (all the data from one round of sampling)
@@ -388,8 +405,6 @@ void User_Process(uint8_t* data_phone, AxesRaw_t* p_axes)
 
 	if (connected){
 		
-		
-			
 		//This puts one byte at a time into each axis
 		//Should probably change axis from int32 to uint8
 		//Unless bluetooth can handle full ints, then we can do conversion here

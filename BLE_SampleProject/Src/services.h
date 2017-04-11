@@ -96,6 +96,9 @@ typedef struct {
   i32_t AXIS_Z;
 	i32_t AWS;
 } AxesRaw_t;
+
+extern uint8_t data_from_phone[750];
+extern int data_amount;
 /**
  * @}
  */

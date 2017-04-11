@@ -6,6 +6,8 @@ volatile uint8_t set_connectable = 1;
 volatile uint16_t connection_handle = 0;
 volatile uint8_t notification_enabled = FALSE;
 volatile AxesRaw_t axes_data = {0, 0, 0};
+uint8_t data_from_phone[750];
+int data_amount = 0;
 
 uint16_t sampleServHandle, TXCharHandle, RXCharHandle;
 uint16_t sampleServHandle, sampleCharHandle;
@@ -369,17 +371,28 @@ void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_da
 	uint8_t temp;
 	memcpy(&temp, att_data, data_length);
 	
+	//Data from phone gets filled from 0 to 1499
+	//TODO: Problem that related uints will be broken up 
+	//since data will be stored xyz xyz instead of xxyyzz
+	
 	//printf("P: %02x\n", temp);
 	if(handle == wsampleCharHandle + 1){ 
 			printf("SampleRead: %02x\n", temp);
+		//data_from_phone[data_amount] = temp;
+		//data_amount++;
 	}else if (handle == p_x_CharHandle + 1){
 			printf("X_Read: %02x\n", temp);
+		data_from_phone[data_amount] = temp;
+		data_amount++;
 	}else if (handle == p_y_CharHandle + 1){
 			printf("Y_Read: %02x\n", temp);
+		data_from_phone[data_amount] = temp;
+		data_amount++;
 	}else if (handle == p_z_CharHandle + 1){
 			printf("Z_Read: %02x\n", temp);
+		data_from_phone[data_amount] = temp;
+		data_amount++;
 	}
-		
 }
 
 /**
