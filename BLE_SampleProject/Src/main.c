@@ -103,7 +103,7 @@ UART_InitTypeDef uart_init_struct;
  * @{
  */
 /* Private function prototypes -----------------------------------------------*/
-void User_Process(AxesRaw_t* p_axes);
+void User_Process(uint8_t* data_phone, AxesRaw_t* p_axes);
 /**
  * @}
  */
@@ -312,6 +312,7 @@ int main(void)
 	aws_write = 0;
 	
 	uint8_t data_R[RBUFFERSIZE];
+	uint8_t data_to_phone[RBUFFERSIZE*2];
 	int i = 0;
 //	while(i < 100)
 //	{
@@ -332,30 +333,42 @@ int main(void)
 			//TODO: Chris don't know where to put this.
 			HAL_UART_Receive(&uart_handle_struct, data_R, RBUFFERSIZE, 1000);
 			
-			//TODO: Put data_R into a format Sam can use
-		
-			if(read_from_discovery == 2)
+			for(int j = 0; j < RBUFFERSIZE; j++)
 			{
-				//Write to aws once we have received data twice (all the data from one round of sampling)
-				aws_write = 1;
-				read_from_discovery = 0;
+				//Copies the first 750 bytes
+				if (read_from_discovery == 1)
+				{
+					data_to_phone[j] = data_R[j];
+				}
+				//Copies the next 750 bytes
+				else
+				{
+					data_to_phone[j*2] = data_R[j];
+				}
 			}
 		}
 		
+		//Write to aws once we have received data twice (all the data from one round of sampling)
+		if(read_from_discovery == 2)
+		{
+			//Not sure how to pass phone data, might be this
+			User_Process(data_to_phone, &axes_data);
+			read_from_discovery = 0;
+		}
 		
 		
-		if (counter_aws % 500 < 450 || counter_aws % 500 > 490 ){
-			aws_write = 0;
-		}else{
-			aws_write = 1;
-		}
-		if (counter_aws % 500 == 0){
-			printf ("exiting..");
-			break;
-		}
+		
+//		if (counter_aws % 500 < 450 || counter_aws % 500 > 490 ){
+//			aws_write = 0;
+//		}else{
+//			aws_write = 1;
+//		}
+//		if (counter_aws % 500 == 0){
+//			printf ("exiting..");
+//			break;
+//		}
 		
     HCI_Process();
-    User_Process(&axes_data);
   }
 }
 
@@ -366,7 +379,7 @@ int main(void)
  * @param  AxesRaw_t* p_axes
  * @retval None
  */
-void User_Process(AxesRaw_t* p_axes)
+void User_Process(uint8_t* data_phone, AxesRaw_t* p_axes)
 {
   if(set_connectable){
     setConnectable();
@@ -374,17 +387,32 @@ void User_Process(AxesRaw_t* p_axes)
   } 
 
 	if (connected){
-	
-		//this counter is used to simulate button
-		counter_aws +=1;
 		
-		/* Update acceleration data */
-		//TODO need to get those values from UART
-		p_axes->AXIS_X = 1;
-		p_axes->AXIS_Y = 10;
-		p_axes->AXIS_Z = 200;
+		
+			
+		//This puts one byte at a time into each axis
+		//Should probably change axis from int32 to uint8
+		//Unless bluetooth can handle full ints, then we can do conversion here
+		for(int j = 0; j < RBUFFERSIZE*2; j++)
+		{
+			if(j%6 == 0 || j%6 == 1)
+			{
+				p_axes->AXIS_X = data_phone[j];
+			}
+			if(j%6 == 2 || j%6 == 3)
+			{
+				p_axes->AXIS_Y = data_phone[j];
+			}
+			if(j%6 == 4 || j%6 == 5)
+			{
+				p_axes->AXIS_Z = data_phone[j];
+			}
+			
+		}
+		aws_write = 1;
 		
 		p_axes->AWS = aws_write;	//this must be set to one when UART is sending data
+		
 		//PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
 		Acc_Update(p_axes);
 	}
