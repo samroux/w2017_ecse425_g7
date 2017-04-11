@@ -6,7 +6,7 @@ volatile uint8_t set_connectable = 1;
 volatile uint16_t connection_handle = 0;
 volatile uint8_t notification_enabled = FALSE;
 volatile AxesRaw_t axes_data = {0, 0, 0};
-uint8_t data_from_phone[750];
+uint8_t data_from_phone[500];
 int data_amount = 0;
 
 uint16_t sampleServHandle, TXCharHandle, RXCharHandle;
@@ -14,7 +14,7 @@ uint16_t sampleServHandle, sampleCharHandle;
 uint16_t wsampleServHandle, wsampleCharHandle;
 uint16_t accServHandle, accCharHandle, acc_x_CharHandle, acc_y_CharHandle, acc_z_CharHandle, acc_aws_CharHandle;
 uint16_t buttonServHandle, buttonCharHandle;
-uint16_t pdataServHandle, pdataCharHandle, p_x_CharHandle, p_y_CharHandle, p_z_CharHandle;
+uint16_t pdataServHandle, pdataCharHandle, p_pitch_CharHandle, p_roll_CharHandle;
 
 extern uint8_t bnrg_expansion_board;
 
@@ -38,9 +38,9 @@ do {\
 #define COPY_W_SAMPLE_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xe8,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 
 #define COPY_PDATA_SERVICE_UUID(uuid_struct)  			COPY_UUID_128(uuid_struct,0x06,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-#define COPY_PDATA_X_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf0,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-#define COPY_PDATA_Y_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf1,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
-#define COPY_PDATA_Z_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf2,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+#define COPY_PDATA_PITCH_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf0,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+#define COPY_PDATA_ROLL_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf1,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+//#define COPY_PDATA_Z_CHAR_UUID(uuid_struct)         	COPY_UUID_128(uuid_struct,0xf2,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 
 
 /* Store Value into a buffer in Little Endian Format */
@@ -181,7 +181,7 @@ tBleStatus Acc_Update(AxesRaw_t *data)
     //PRINTF("Error while updating ACC X characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
-	//printf ("Success ACC X Update\n");
+	printf ("Success ACC X Update\n");
 	
 	ret = aci_gatt_update_char_value(accServHandle, acc_y_CharHandle, 0, 2, buff_y);
 	
@@ -189,7 +189,7 @@ tBleStatus Acc_Update(AxesRaw_t *data)
     //PRINTF("Error while updating ACC Y characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
-	//printf ("Success ACC Y Update\n");
+	printf ("Success ACC Y Update\n");
 	
 	ret = aci_gatt_update_char_value(accServHandle, acc_z_CharHandle, 0, 2, buff_z);
 	
@@ -197,7 +197,7 @@ tBleStatus Acc_Update(AxesRaw_t *data)
     //PRINTF("Error while updating ACC Z characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
-	//printf ("Success ACC Z Update\n");
+	printf ("Success ACC Z Update\n");
 	
 	ret = aci_gatt_update_char_value(accServHandle, acc_aws_CharHandle, 0, 2, buff_aws);
 	
@@ -205,7 +205,7 @@ tBleStatus Acc_Update(AxesRaw_t *data)
     //PRINTF("Error while updating ACC AWS characteristic.(0x%02x)\n", ret) ;
     return BLE_STATUS_ERROR ;
   }
-	//printf ("Success ACC AWS Update\n");
+	printf ("Success ACC AWS Update\n");
 	
   return BLE_STATUS_SUCCESS;	
 }
@@ -230,29 +230,29 @@ tBleStatus Add_PData_Service(void)
   if (ret != BLE_STATUS_SUCCESS) goto fail;    
   
 	//Adding Characteristics 
-  COPY_PDATA_X_CHAR_UUID(uuid);
+  COPY_PDATA_PITCH_CHAR_UUID(uuid);
 	ret =  aci_gatt_add_char(pdataServHandle, UUID_TYPE_128, uuid, 6,
 												 CHAR_PROP_WRITE|CHAR_PROP_NOTIFY,
 												 ATTR_PERMISSION_NONE,
 												 GATT_NOTIFY_ATTRIBUTE_WRITE,
-												 16, 0, &p_x_CharHandle);
+												 16, 0, &p_pitch_CharHandle);
   if (ret != BLE_STATUS_SUCCESS) goto fail;
 	
-	COPY_PDATA_Y_CHAR_UUID(uuid);
+	COPY_PDATA_ROLL_CHAR_UUID(uuid);
 	ret =  aci_gatt_add_char(pdataServHandle, UUID_TYPE_128, uuid, 6,
 												 CHAR_PROP_WRITE|CHAR_PROP_NOTIFY,
 												 ATTR_PERMISSION_NONE,
 												 GATT_NOTIFY_ATTRIBUTE_WRITE,
-												 16, 0, &p_y_CharHandle);
+												 16, 0, &p_roll_CharHandle);
   if (ret != BLE_STATUS_SUCCESS) goto fail;
 	
-	COPY_PDATA_Z_CHAR_UUID(uuid);
-	ret =  aci_gatt_add_char(pdataServHandle, UUID_TYPE_128, uuid, 6,
-												 CHAR_PROP_WRITE|CHAR_PROP_NOTIFY,
-												 ATTR_PERMISSION_NONE,
-												 GATT_NOTIFY_ATTRIBUTE_WRITE,
-												 16, 0, &p_z_CharHandle);
-  if (ret != BLE_STATUS_SUCCESS) goto fail;
+//	COPY_PDATA_Z_CHAR_UUID(uuid);
+//	ret =  aci_gatt_add_char(pdataServHandle, UUID_TYPE_128, uuid, 6,
+//												 CHAR_PROP_WRITE|CHAR_PROP_NOTIFY,
+//												 ATTR_PERMISSION_NONE,
+//												 GATT_NOTIFY_ATTRIBUTE_WRITE,
+//												 16, 0, &p_z_CharHandle);
+//  if (ret != BLE_STATUS_SUCCESS) goto fail;
   
   PRINTF("PData Service Added. Handle 0x%04X, PData Characteristic Handle: 0x%04X\n",pdataServHandle, pdataCharHandle);	
   return BLE_STATUS_SUCCESS; 
@@ -380,19 +380,20 @@ void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_da
 			printf("SampleRead: %02x\n", temp);
 		//data_from_phone[data_amount] = temp;
 		//data_amount++;
-	}else if (handle == p_x_CharHandle + 1){
-			printf("X_Read: %02x\n", temp);
+	}else if (handle == p_pitch_CharHandle + 1){
+			printf("PITCH_Read: %02x\n", temp);
 		data_from_phone[data_amount] = temp;
 		data_amount++;
-	}else if (handle == p_y_CharHandle + 1){
-			printf("Y_Read: %02x\n", temp);
-		data_from_phone[data_amount] = temp;
-		data_amount++;
-	}else if (handle == p_z_CharHandle + 1){
-			printf("Z_Read: %02x\n", temp);
+	}else if (handle == p_roll_CharHandle + 1){
+			printf("ROLL_Read: %02x\n", temp);
 		data_from_phone[data_amount] = temp;
 		data_amount++;
 	}
+//	else if (handle == p_z_CharHandle + 1){
+//			printf("Z_Read: %02x\n", temp);
+//		data_from_phone[data_amount] = temp;
+//		data_amount++;
+//	}
 }
 
 /**

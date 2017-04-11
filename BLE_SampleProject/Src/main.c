@@ -69,7 +69,8 @@
  */
 /* Private defines -----------------------------------------------------------*/
 #define BDADDR_SIZE 6
-#define RBUFFERSIZE 750
+#define RBUFFERSIZE_FROMDISOVERY 750
+#define RBUFFERSIZE_TODISCOVERY 500
 #define TIMEOUT 1000
 
 /**
@@ -93,6 +94,9 @@ GPIO_InitTypeDef toggle_GPIO_struct;
 GPIO_InitTypeDef read_GPIO_struct;
 UART_HandleTypeDef uart_handle_struct;
 UART_InitTypeDef uart_init_struct;
+
+uint8_t data_R[RBUFFERSIZE_FROMDISOVERY]; 
+uint8_t data_to_phone[RBUFFERSIZE_FROMDISOVERY*2];
 /**
  * @}
  */
@@ -312,8 +316,7 @@ int main(void)
 	counter_aws = 1;
 	aws_write = 0;
 	
-	uint8_t data_R[RBUFFERSIZE];
-	uint8_t data_to_phone[RBUFFERSIZE*2];
+
 	int i = 0;
 //	while(i < 100)
 //	{
@@ -328,62 +331,68 @@ int main(void)
   while(1)
   {
 		
-		//HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
-		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4))
-		{
-			read_from_discovery++;
-			printf("pin is 1\n");
-			//TODO: Chris don't know where to put this.
-			HAL_UART_Receive(&uart_handle_struct, data_R, RBUFFERSIZE, TIMEOUT);
-			
-			for(int j = 0; j < RBUFFERSIZE; j++)
-			{
-				//Copies the first 750 bytes
-				if (read_from_discovery == 1)
-				{
-					data_to_phone[j] = data_R[j];
-				}
-				//Copies the next 750 bytes
-				else
-				{
-					data_to_phone[j*2] = data_R[j];
-				}
-			}
-		}
-		
-		
-		//When data_amount == 750, it means that we have received half the data from the phone
-		//Then we must transmit with UART
-		//Currently discovery board must know that it needs to receive twice
-		if (data_amount == RBUFFERSIZE)
-		{
-			//write_to_discovery++;
-			
-			//SET transmit pin
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
-			HAL_UART_Transmit(&uart_handle_struct, data_from_phone, RBUFFERSIZE, TIMEOUT);
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
-		}
-		
-		//Write to aws once we have received data twice (all the data from one round of sampling)
-		if(read_from_discovery == 2)
-		{
-			//Not sure how to pass phone data, might be this
-			User_Process(data_to_phone, &axes_data);
-			read_from_discovery = 0;
-		}
-		
-		
-		
-//		if (counter_aws % 500 < 450 || counter_aws % 500 > 490 ){
-//			aws_write = 0;
-//		}else{
+		/*{Start} Uncomment this section when using UART (Testing)*/
+//		if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4))
+//		{
+//			read_from_discovery++;
+//			printf("pin is 1\n");
+//			//TODO: Chris don't know where to put this.
+//			HAL_UART_Receive(&uart_handle_struct, data_R, RBUFFERSIZE_FROMDISOVERY, TIMEOUT);
+//			
+//			for(int j = 0; j < RBUFFERSIZE_FROMDISOVERY; j++)
+//			{
+//				//Copies the first 750 bytes
+//				if (read_from_discovery == 1)
+//				{
+//					data_to_phone[j] = data_R[j];
+//				}
+//				//Copies the next 750 bytes
+//				else
+//				{
+//					data_to_phone[j*2] = data_R[j];
+//				}
+//			}
+//		}
+//		
+//		
+//		//When data_amount == 500, it means that we have received half the data from the phone
+//		//Then we must transmit with UART
+//		//Currently discovery board must know that it needs to receive twice
+//		if (data_amount == RBUFFERSIZE_TODISCOVERY)
+//		{
+//			
+//			//SET transmit pin
+//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
+//			HAL_UART_Transmit(&uart_handle_struct, data_from_phone, RBUFFERSIZE_TODISCOVERY, TIMEOUT);
+//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+//		}
+//		
+//		//Write to aws once we have received data twice (all the data from one round of sampling)
+//		if(read_from_discovery == 2)
+//		{
+//			//Not sure how to pass phone data, might be this
 //			aws_write = 1;
+//			User_Process(data_to_phone, &axes_data);
+//			read_from_discovery = 0;
+//			aws_write = 0;
+//			User_Process(data_to_phone, &axes_data);
 //		}
-//		if (counter_aws % 500 == 0){
-//			printf ("exiting..");
-//			break;
-//		}
+		/**{end} Using UART**/
+		
+		
+		/*{Start}Uncomment this section when not using UART (Testing)*/
+		if (counter_aws % 1000 < 800 || counter_aws % 1000 > 900 ){
+			aws_write = 0;
+		}else{
+			aws_write = 1;
+		}
+		
+		if (counter_aws % 1000 == 0){
+			printf ("exiting..");
+			break;
+		}
+		User_Process(data_to_phone, &axes_data);
+		/*{end} not using UART*/
 		
     HCI_Process();
   }
@@ -405,26 +414,37 @@ void User_Process(uint8_t* data_phone, AxesRaw_t* p_axes)
 
 	if (connected){
 		
+		counter_aws++;
+		
 		//This puts one byte at a time into each axis
 		//Should probably change axis from int32 to uint8
 		//Unless bluetooth can handle full ints, then we can do conversion here
-		for(int j = 0; j < RBUFFERSIZE*2; j++)
-		{
-			if(j%6 == 0 || j%6 == 1)
-			{
-				p_axes->AXIS_X = data_phone[j];
-			}
-			if(j%6 == 2 || j%6 == 3)
-			{
-				p_axes->AXIS_Y = data_phone[j];
-			}
-			if(j%6 == 4 || j%6 == 5)
-			{
-				p_axes->AXIS_Z = data_phone[j];
-			}
-			
-		}
-		aws_write = 1;
+		
+		/*{Start} Uncomment when using UART*/
+//		for(int j = 0; j < RBUFFERSIZE_FROMDISOVERY*2; j++)
+//		{
+//			if(j%6 == 0 || j%6 == 1)
+//			{
+//				p_axes->AXIS_X = data_phone[j];
+//			}
+//			if(j%6 == 2 || j%6 == 3)
+//			{
+//				p_axes->AXIS_Y = data_phone[j];
+//			}
+//			if(j%6 == 4 || j%6 == 5)
+//			{
+//				p_axes->AXIS_Z = data_phone[j];
+//			}
+//			
+//		}
+		/*{end} Using UART*/
+		
+		
+		/*{Start} Uncomment when NOT using UART*/
+		p_axes->AXIS_X = 10;
+		p_axes->AXIS_Y = 100;
+		p_axes->AXIS_Z = 200;
+		/*{end} Not using UART*/
 		
 		p_axes->AWS = aws_write;	//this must be set to one when UART is sending data
 		
