@@ -346,7 +346,7 @@ int main(void)
 			for(int j = 0; j < RBUFFERSIZE_FROMDISCOVERY; j++)
 			{
 				//Copies the first 750 bytes
-				if (read_from_discovery >= 1)
+				if (read_from_discovery == 1)
 				{
 					data_to_phone[j] = data_R[j];
 				}
@@ -365,21 +365,24 @@ int main(void)
 		
 		//Write to aws once we have received data twice (all the data from one round of sampling)
 		//Change read_from_discovery to 2 if we are reading all 1500 values
-		if(1 || read_from_discovery >= 1)
+		if(read_from_discovery >= 1)
 		{
 			//Not sure how to pass phone data, might be this
-//			aws_write = 1;
+			aws_write = 1;
 			User_Process(data_to_phone, &axes_data);
-//			read_from_discovery = 0;
-//			aws_write = 0;
-//			User_Process(data_to_phone, &axes_data);
+			if(read_from_discovery == 2)
+			{
+				read_from_discovery = 0;
+			}
+			aws_write = 0;
+			User_Process(data_to_phone, &axes_data);
 		}
 		/**{end} Using UART**/
 		
 		//When data_amount == 500, it means that we have received half the data from the phone
 		//Then we must transmit with UART
 		//Currently discovery board must know that it needs to receive twice
-		if (data_amount == 50)
+		if (data_amount == 500)
 		{
 			//SET transmit pin
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
